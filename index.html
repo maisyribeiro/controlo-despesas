@@ -580,12 +580,14 @@ function renderDashboard(){
   const palette=['#5b8cff','#7c5bff','#37d399','#ffc857','#ff6b6b','#46d3ff','#ff8fab','#b388ff','#9aa0bd','#ffa94d','#69db7c','#e599f7'];
   if(chartCat)chartCat.destroy();
   const _monthForDrill=month;
+  const _catEntriesForDrill=catEntries;
   chartCat=new Chart(document.getElementById('chartCat'),{type:'doughnut',
     data:{labels:catEntries.map(e=>e[0]),datasets:[{data:catEntries.map(e=>e[1]),backgroundColor:palette,borderWidth:0}]},
-    options:{
-      plugins:{legend:{position:'right',labels:{color:'#9aa0bd',boxWidth:12}}},
-      onClick:(_,els)=>{if(els.length){openDrillDown(catEntries[els[0].index][0],_monthForDrill);}}
-    }});
+    options:{plugins:{legend:{position:'right',labels:{color:'#9aa0bd',boxWidth:12}}}}});
+  document.getElementById('chartCat').onclick=function(e){
+    const pts=chartCat.getElementsAtEventForMode(e,'nearest',{intersect:true},false);
+    if(pts.length)openDrillDown(_catEntriesForDrill[pts[0].index][0],_monthForDrill);
+  };
 
   // evolução mensal (todos os meses)
   const ms=months().slice().reverse();
@@ -662,7 +664,12 @@ function renderDashboardAll(){
   const ce=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
   const palette=['#5b8cff','#7c5bff','#37d399','#ffc857','#ff6b6b','#46d3ff','#ff8fab','#b388ff','#9aa0bd','#ffa94d','#69db7c','#e599f7'];
   if(chartCat)chartCat.destroy();
-  chartCat=new Chart(document.getElementById('chartCat'),{type:'doughnut',data:{labels:ce.map(e=>e[0]),datasets:[{data:ce.map(e=>e[1]),backgroundColor:palette,borderWidth:0}]},options:{plugins:{legend:{position:'right',labels:{color:'#9aa0bd',boxWidth:12}}},onClick:(_,els)=>{if(els.length){openDrillDown(ce[els[0].index][0],'');}}}});
+  chartCat=new Chart(document.getElementById('chartCat'),{type:'doughnut',data:{labels:ce.map(e=>e[0]),datasets:[{data:ce.map(e=>e[1]),backgroundColor:palette,borderWidth:0}]},options:{plugins:{legend:{position:'right',labels:{color:'#9aa0bd',boxWidth:12}}}}});
+  const _ceForDrill=ce;
+  document.getElementById('chartCat').onclick=function(e){
+    const pts=chartCat.getElementsAtEventForMode(e,'nearest',{intersect:true},false);
+    if(pts.length)openDrillDown(_ceForDrill[pts[0].index][0],'');
+  };
   document.getElementById('dashBudgets').innerHTML='<p class="muted">Seleciona um mês para ver o progresso dos orçamentos.</p>';
 }
 
