@@ -67,6 +67,8 @@
   .cat-group > summary{padding:12px 16px;cursor:pointer;font-weight:700;background:var(--panel2);list-style:none}
   .cat-group > summary::-webkit-details-marker{display:none}
   .subrow{display:grid;grid-template-columns:1fr 2fr auto;gap:10px;align-items:center;padding:8px 16px;border-top:1px solid var(--line)}
+  select.moveSel{background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:6px 8px;border-radius:9px;font-size:13px;cursor:pointer}
+  select.moveSel:hover{border-color:var(--accent);color:var(--txt)}
   .dropzone{border:2px dashed var(--line);border-radius:14px;padding:34px;text-align:center;color:var(--muted);cursor:pointer}
   .dropzone:hover{border-color:var(--accent);color:var(--txt)}
   .empty{text-align:center;color:var(--muted);padding:50px}
@@ -793,12 +795,17 @@ function renderBudgets(){
 /* ============ CATEGORIAS ============ */
 function renderCats(){
   const el=document.getElementById('catEditor');
+  const allCats=Object.keys(state.cats);
   el.innerHTML=Object.entries(state.cats).map(([cat,subs],ci)=>`
     <details class="cat-group">
       <summary>${cat} <span class="muted" style="font-weight:400">(${subs.length})</span></summary>
-      ${subs.map((s,si)=>`<div class="subrow">
+      ${subs.map((s,si)=>`<div class="subrow" style="grid-template-columns:1fr 2fr auto auto">
         <input type="text" value="${escapeAttr(s.sub)}" onchange="updSub(${ci},${si},this.value)">
         <input type="text" value="${escapeAttr((s.kw||[]).join(', '))}" placeholder="palavras-chave separadas por vírgula" onchange="updKw(${ci},${si},this.value)">
+        <select class="moveSel" onchange="moveSub(${ci},${si},this.value);this.value=''" title="Mover para outra categoria">
+          <option value="">↗ Mover</option>
+          ${allCats.filter(c=>c!==cat).map(c=>`<option value="${escapeAttr(c)}">${c}</option>`).join('')}
+        </select>
         <button class="btn ghost sm" onclick="delSub(${ci},${si})">🗑</button>
       </div>`).join('')}
       <div class="subrow"><button class="btn ghost sm" onclick="addSub(${ci})">+ subcategoria</button></div>
@@ -810,6 +817,14 @@ window.updSub=(ci,si,v)=>{state.cats[catKey(ci)][si].sub=v;save();};
 window.updKw=(ci,si,v)=>{state.cats[catKey(ci)][si].kw=v.split(',').map(x=>x.trim()).filter(Boolean);save();};
 window.delSub=(ci,si)=>{state.cats[catKey(ci)].splice(si,1);save();renderCats();};
 window.addSub=ci=>{state.cats[catKey(ci)].push({sub:'Nova subcategoria',kw:[]});save();renderCats();};
+window.moveSub=(ci,si,destCat)=>{
+  if(!destCat)return;
+  const src=catKey(ci);
+  const [sub]=state.cats[src].splice(si,1);
+  if(!state.cats[destCat])state.cats[destCat]=[];
+  state.cats[destCat].push(sub);
+  save();renderCats();
+};
 document.getElementById('resetCats').onclick=()=>{if(confirm('Repor categorias predefinidas? As tuas alterações às categorias serão perdidas (as transações mantêm-se).')){state.cats=JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));save();renderCats();}};
 
 /* ============ IMPORTAR ============ */
