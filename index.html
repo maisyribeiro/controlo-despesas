@@ -137,7 +137,7 @@
       <div class="card"><div class="label">Transações</div><div class="value" id="kpiCount">0</div></div>
     </div>
     <div class="grid2">
-      <div class="panel"><h3>Despesas por categoria</h3><canvas id="chartCat"></canvas></div>
+      <div class="panel"><h3>Despesas por categoria <span style="font-size:12px;color:var(--muted);font-weight:400">(clique numa fatia para ver subcategorias)</span></h3><canvas id="chartCat" style="cursor:pointer"></canvas></div>
       <div class="panel"><h3>Evolução mensal</h3><canvas id="chartMonth"></canvas></div>
     </div>
     <div id="lembreteAnual"></div>
@@ -225,6 +225,18 @@
     </div>
   </section>
 </main>
+
+<!-- MODAL drill-down subcategorias -->
+<div class="modal-bg" id="drillModal">
+  <div class="modal" style="max-width:560px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h3 id="drillTitle" style="margin:0"></h3>
+      <button class="btn ghost sm" onclick="document.getElementById('drillModal').classList.remove('show');if(drillChart){drillChart.destroy();drillChart=null;}">✕</button>
+    </div>
+    <canvas id="chartDrill" style="max-height:280px"></canvas>
+    <div id="drillList" style="margin-top:16px;font-size:14px"></div>
+  </div>
+</div>
 
 <!-- MODAL transacao -->
 <div class="modal-bg" id="txModal">
@@ -516,7 +528,32 @@ function fillMonthSelect(el,withAll){
 function catOptions(sel){return'<option value="">— sem categoria —</option>'+Object.keys(state.cats).map(c=>`<option ${c===sel?'selected':''}>${c}</option>`).join('');}
 
 /* ============ DASHBOARD ============ */
-let chartCat,chartMonth;
+let chartCat,chartMonth,drillChart;
+function openDrillDown(cat,month){
+  const filtered=month?state.tx.filter(t=>monthOf(t.dataISO)===month):state.tx;
+  const bySub={};
+  filtered.filter(t=>t.valor<0&&(t.categoria||'Sem categoria')===cat).forEach(t=>{
+    const s=t.subcategoria||'(sem subcategoria)';
+    bySub[s]=(bySub[s]||0)+Math.abs(t.valor);
+  });
+  const entries=Object.entries(bySub).sort((a,b)=>b[1]-a[1]);
+  const palette=['#5b8cff','#7c5bff','#37d399','#ffc857','#ff6b6b','#46d3ff','#ff8fab','#b388ff','#9aa0bd','#ffa94d','#69db7c','#e599f7'];
+  const total=entries.reduce((a,e)=>a+e[1],0);
+  document.getElementById('drillTitle').textContent=cat;
+  if(drillChart){drillChart.destroy();drillChart=null;}
+  drillChart=new Chart(document.getElementById('chartDrill'),{
+    type:'doughnut',
+    data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:palette,borderWidth:0}]},
+    options:{plugins:{legend:{position:'right',labels:{color:'#9aa0bd',boxWidth:12}}}}
+  });
+  document.getElementById('drillList').innerHTML=entries.length?entries.map((e,i)=>`
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${palette[i%palette.length]};margin-right:8px"></span>${e[0]}</span>
+      <span><b>${eur(e[1])}</b> <span style="color:var(--muted)">(${(e[1]/total*100).toFixed(1)}%)</span></span>
+    </div>`).join(''):'<p class="muted">Sem subcategorias.</p>';
+  document.getElementById('drillModal').classList.add('show');
+}
+document.getElementById('drillModal').addEventListener('click',function(e){if(e.target===this){this.classList.remove('show');if(drillChart){drillChart.destroy();drillChart=null;}}});
 /* saldo da conta = saldo da transação mais recente do conjunto (o último do extrato) */
 function saldoConta(list){let best=null,bi=-1;list.forEach((t,i)=>{if(t.saldo!=null&&(best===null||t.dataISO>best.dataISO||(t.dataISO===best.dataISO&&i>bi))){best=t;bi=i;}});return best?best.saldo:null;}
 function setSaldoConta(list){const s=saldoConta(list);const el=document.getElementById('kpiSaldoConta');el.textContent=s==null?'—':eur(s);el.className='value '+(s==null?'':(s>=0?'amt-pos':'amt-neg'));}
@@ -542,9 +579,13 @@ function renderDashboard(){
   const catEntries=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
   const palette=['#5b8cff','#7c5bff','#37d399','#ffc857','#ff6b6b','#46d3ff','#ff8fab','#b388ff','#9aa0bd','#ffa94d','#69db7c','#e599f7'];
   if(chartCat)chartCat.destroy();
+  const _monthForDrill=month;
   chartCat=new Chart(document.getElementById('chartCat'),{type:'doughnut',
     data:{labels:catEntries.map(e=>e[0]),datasets:[{data:catEntries.map(e=>e[1]),backgroundColor:palette,borderWidth:0}]},
-    options:{plugins:{legend:{position:'right',labels:{color:'#9aa0bd',boxWidth:12}}}}});
+    options:{
+      plugins:{legend:{position:'right',labels:{color:'#9aa0bd',boxWidth:12}}},
+      onClick:(_,els)=>{if(els.length){openDrillDown(catEntries[els[0].index][0],_monthForDrill);}}
+    }});
 
   // evolução mensal (todos os meses)
   const ms=months().slice().reverse();
@@ -621,7 +662,7 @@ function renderDashboardAll(){
   const ce=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
   const palette=['#5b8cff','#7c5bff','#37d399','#ffc857','#ff6b6b','#46d3ff','#ff8fab','#b388ff','#9aa0bd','#ffa94d','#69db7c','#e599f7'];
   if(chartCat)chartCat.destroy();
-  chartCat=new Chart(document.getElementById('chartCat'),{type:'doughnut',data:{labels:ce.map(e=>e[0]),datasets:[{data:ce.map(e=>e[1]),backgroundColor:palette,borderWidth:0}]},options:{plugins:{legend:{position:'right',labels:{color:'#9aa0bd',boxWidth:12}}}}});
+  chartCat=new Chart(document.getElementById('chartCat'),{type:'doughnut',data:{labels:ce.map(e=>e[0]),datasets:[{data:ce.map(e=>e[1]),backgroundColor:palette,borderWidth:0}]},options:{plugins:{legend:{position:'right',labels:{color:'#9aa0bd',boxWidth:12}}},onClick:(_,els)=>{if(els.length){openDrillDown(ce[els[0].index][0],'');}}}});
   document.getElementById('dashBudgets').innerHTML='<p class="muted">Seleciona um mês para ver o progresso dos orçamentos.</p>';
 }
 
