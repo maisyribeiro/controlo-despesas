@@ -550,7 +550,11 @@ function openDrillDown(cat,month){
     <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)">
       <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${palette[i%palette.length]};margin-right:8px"></span>${e[0]}</span>
       <span><b>${eur(e[1])}</b> <span style="color:var(--muted)">(${(e[1]/total*100).toFixed(1)}%)</span></span>
-    </div>`).join(''):'<p class="muted">Sem subcategorias.</p>';
+    </div>`).join('')+`
+    <div style="display:flex;justify-content:space-between;padding:10px 0;margin-top:4px;border-top:2px solid var(--accent);font-weight:800;font-size:15px">
+      <span style="color:var(--txt)">Total</span>
+      <span style="color:var(--accent)">${eur(total)}</span>
+    </div>`:'<p class="muted">Sem subcategorias.</p>';
   document.getElementById('drillModal').classList.add('show');
 }
 document.getElementById('drillModal').addEventListener('click',function(e){if(e.target===this){this.classList.remove('show');if(drillChart){drillChart.destroy();drillChart=null;}}});
