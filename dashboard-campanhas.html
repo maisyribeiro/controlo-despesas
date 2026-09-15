@@ -86,20 +86,13 @@ tbody tr:hover { background: var(--panel2); }
 <script>
 async function loadData() {
   try {
-    // Tenta proxy de CORS
-    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://dashboardmetaads-wheat.vercel.app/dashboard/campanhas');
-
-    const response = await fetch(proxyUrl, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    // Fetch via Vercel serverless proxy (dados reais)
+    const response = await fetch('/api/campanhas');
 
     console.log('Status:', response.status);
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      throw new Error(`Erro ${response.status}`);
     }
 
     const data = await response.json();
@@ -107,31 +100,13 @@ async function loadData() {
 
   } catch (error) {
     console.error('Erro:', error);
-    // Fallback: dados de exemplo
-    renderExample();
+    document.getElementById('content').innerHTML = `
+      <div class="error">
+        ⚠️ Erro ao carregar dados: ${error.message}<br>
+        <small>Verifica a ligação e tenta novamente</small>
+      </div>
+    `;
   }
-}
-
-function renderExample() {
-  const exampleData = {
-    "cliente": "Meta Ads - Dados Exemplo",
-    "resumo": {
-      "gastos": 2450.50,
-      "vendas": 31245.75,
-      "roas": 12.75,
-      "cpcMedio": 0.38,
-      "ctr": 2.15,
-      "conversoes": 145
-    },
-    "campanhas": [
-      {"nome": "Campanha A", "impressoes": 45000, "cliques": 980, "gastos": 450.50, "vendas": 8900, "roi": 1875},
-      {"nome": "Campanha B", "impressoes": 38000, "cliques": 850, "gastos": 380.00, "vendas": 7200, "roi": 1795},
-      {"nome": "Campanha C", "impressoes": 52000, "cliques": 1200, "gastos": 520.00, "vendas": 9500, "roi": 1827}
-    ]
-  };
-
-  document.querySelector('.badge').textContent = '⚠️ ' + exampleData.cliente;
-  render(exampleData);
 }
 
 function render(data) {
