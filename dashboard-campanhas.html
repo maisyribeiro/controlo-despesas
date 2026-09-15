@@ -86,13 +86,12 @@ tbody tr:hover { background: var(--panel2); }
 <script>
 async function loadData() {
   try {
-    // Fetch direto do browser (sem proxy do servidor)
-    const response = await fetch('https://dashboardmetaads-wheat.vercel.app/dashboard/campanhas', {
+    // Fetch via local serverless proxy
+    const response = await fetch('/api/campanhas', {
       method: 'GET',
       headers: {
         'Accept': 'application/json'
-      },
-      mode: 'cors'
+      }
     });
 
     console.log('Status:', response.status);
@@ -108,8 +107,8 @@ async function loadData() {
     console.error('Erro:', error);
     document.getElementById('content').innerHTML = `
       <div class="error">
-        ⚠️ Erro: ${error.message}<br>
-        <small>URL: https://dashboardmetaads-wheat.vercel.app/dashboard/campanhas</small>
+        ⚠️ Erro ao carregar dados: ${error.message}<br>
+        <small>Contacta o suporte se o problema persistir</small>
       </div>
     `;
   }
