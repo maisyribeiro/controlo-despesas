@@ -338,6 +338,16 @@ canvas { max-height: 300px; }
   color: var(--muted);
   padding: 50px 20px;
 }
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--panel2);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 6px;
+}
 </style>
 </head>
 <body>
@@ -368,7 +378,7 @@ canvas { max-height: 300px; }
     <div class="loading"><div class="spinner"></div> Carregando métricas...</div>
   </div>
 
-  <!-- GRÁFICOS -->
+  <!-- GRÁFICOS PRINCIPAIS -->
   <div class="grid2">
     <div class="panel">
       <h3>Performance das campanhas <span class="meta">(últimos 30 dias)</span></h3>
@@ -380,6 +390,30 @@ canvas { max-height: 300px; }
     </div>
   </div>
 
+  <!-- ANÁLISE POR TIPO DE CONTEÚDO -->
+  <div class="grid2">
+    <div class="panel">
+      <h3>Performance por tipo de conteúdo <span class="meta">(CTR & Engagement)</span></h3>
+      <canvas id="chartContentType"></canvas>
+    </div>
+    <div class="panel">
+      <h3>ROI por tipo de conteúdo <span class="meta">(Retorno de investimento)</span></h3>
+      <canvas id="chartContentROI"></canvas>
+    </div>
+  </div>
+
+  <!-- DISTRIBUIÇÃO E HEATMAP -->
+  <div class="grid2">
+    <div class="panel">
+      <h3>Distribuição de conteúdo <span class="meta">(por tipo)</span></h3>
+      <canvas id="chartContentDistribution"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Custo de aquisição por tipo <span class="meta">(CPA breakdown)</span></h3>
+      <canvas id="chartCPA"></canvas>
+    </div>
+  </div>
+
   <!-- TABELA DE CAMPANHAS -->
   <div class="panel">
     <h3>
@@ -387,6 +421,18 @@ canvas { max-height: 300px; }
       <button class="ghost" id="exportBtn" style="padding: 6px 12px; font-size: 12px; margin: 0;">📊 Exportar</button>
     </h3>
     <div id="campaignsTable"></div>
+  </div>
+
+  <!-- ANÁLISE DETALHADA POR TIPO DE CONTEÚDO -->
+  <div class="panel">
+    <h3>🎬 Análise de conteúdo</h3>
+    <div id="contentAnalysisTable"></div>
+  </div>
+
+  <!-- COMPARAÇÃO: QUAL TIPO FUNCIONA MELHOR? -->
+  <div class="panel">
+    <h3>🏆 Ranking de eficiência por tipo</h3>
+    <div id="contentRanking"></div>
   </div>
 
   <!-- INSIGHTS -->
@@ -447,6 +493,8 @@ function render() {
   renderKPIs();
   renderCharts();
   renderTable();
+  renderContentAnalysis();
+  renderContentRanking();
   renderInsights();
   updateClientBadge();
 }
@@ -562,6 +610,120 @@ function renderCharts() {
       }
     }
   });
+
+  // Chart 3: Performance por tipo de conteúdo
+  if (data.conteudo && data.conteudo.length > 0) {
+    const ctx3 = document.getElementById('chartContentType').getContext('2d');
+    new Chart(ctx3, {
+      type: 'bar',
+      data: {
+        labels: data.conteudo.map(c => c.tipo),
+        datasets: [
+          {
+            label: 'CTR (%)',
+            data: data.conteudo.map(c => c.ctr || 0),
+            backgroundColor: 'rgba(91, 140, 255, 0.5)',
+            borderColor: '#5b8cff',
+            borderWidth: 1,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Engagement (%)',
+            data: data.conteudo.map(c => c.engagement || 0),
+            backgroundColor: 'rgba(124, 91, 255, 0.5)',
+            borderColor: '#7c5bff',
+            borderWidth: 1,
+            yAxisID: 'y'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: true, labels: { color: '#9aa0bd' } } },
+        scales: {
+          y: { ticks: { color: '#9aa0bd' }, grid: { color: '#2c3251' } },
+          x: { ticks: { color: '#9aa0bd' }, grid: { display: false } }
+        }
+      }
+    });
+
+    // Chart 4: ROI por tipo de conteúdo
+    const ctx4 = document.getElementById('chartContentROI').getContext('2d');
+    new Chart(ctx4, {
+      type: 'doughnut',
+      data: {
+        labels: data.conteudo.map(c => c.tipo),
+        datasets: [{
+          data: data.conteudo.map(c => c.roi || 0),
+          backgroundColor: ['#5b8cff', '#7c5bff', '#37d399', '#ffc857', '#ff6b6b', '#37d399'].slice(0, data.conteudo.length),
+          borderColor: '#191d2e',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: true, labels: { color: '#9aa0bd' }, position: 'right' },
+          tooltip: { callbacks: { label: (ctx) => `ROI: ${ctx.parsed}%` } }
+        }
+      }
+    });
+
+    // Chart 5: Distribuição de conteúdo
+    const ctx5 = document.getElementById('chartContentDistribution').getContext('2d');
+    new Chart(ctx5, {
+      type: 'pie',
+      data: {
+        labels: data.conteudo.map(c => c.tipo),
+        datasets: [{
+          data: data.conteudo.map(c => c.posts || 0),
+          backgroundColor: ['#5b8cff', '#7c5bff', '#37d399', '#ffc857', '#ff6b6b', '#37d399'].slice(0, data.conteudo.length),
+          borderColor: '#191d2e',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: true, labels: { color: '#9aa0bd' }, position: 'right' },
+          tooltip: { callbacks: { label: (ctx) => `Posts: ${ctx.parsed}` } }
+        }
+      }
+    });
+
+    // Chart 6: CPA por tipo
+    const ctx6 = document.getElementById('chartCPA').getContext('2d');
+    new Chart(ctx6, {
+      type: 'bar',
+      data: {
+        labels: data.conteudo.map(c => c.tipo),
+        datasets: [{
+          label: 'CPA (€)',
+          data: data.conteudo.map(c => c.cpa || 0),
+          backgroundColor: data.conteudo.map((c, i) => {
+            const cpa = c.cpa || 0;
+            return cpa < 10 ? '#37d399' : cpa < 20 ? '#ffc857' : '#ff6b6b';
+          }),
+          borderColor: '#191d2e',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#9aa0bd' }, grid: { color: '#2c3251' } },
+          y: { ticks: { color: '#9aa0bd' }, grid: { display: false } }
+        }
+      }
+    });
+  }
 }
 
 function renderTable() {
@@ -603,6 +765,118 @@ function renderTable() {
   document.getElementById('campaignsTable').innerHTML = tableHtml;
 }
 
+function renderContentAnalysis() {
+  const data = state.data;
+  if (!data.conteudo || data.conteudo.length === 0) {
+    document.getElementById('contentAnalysisTable').innerHTML = '<p class="empty">Sem dados de conteúdo</p>';
+    return;
+  }
+
+  const tableHtml = `
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo de conteúdo</th>
+          <th class="txt-right">Posts</th>
+          <th class="txt-right">Impressões</th>
+          <th class="txt-right">CTR</th>
+          <th class="txt-right">Engagement</th>
+          <th class="txt-right">Conversões</th>
+          <th class="txt-right">CPA (€)</th>
+          <th class="txt-right">ROI</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.conteudo.map((c, i) => `
+          <tr style="border-left: 3px solid ${getColorByROI(c.roi || 0)};">
+            <td style="font-weight: 600;">
+              ${getContentTypeEmoji(c.tipo)} ${c.tipo}
+            </td>
+            <td class="txt-right">${(c.posts || 0).toLocaleString()}</td>
+            <td class="txt-right">${(c.impressoes || 0).toLocaleString()}</td>
+            <td class="txt-right">${(c.ctr || 0).toFixed(2)}%</td>
+            <td class="txt-right">${(c.engagement || 0).toFixed(2)}%</td>
+            <td class="txt-right">${(c.conversoes || 0).toLocaleString()}</td>
+            <td class="txt-right" style="font-weight: 600;">€${(c.cpa || 0).toFixed(2)}</td>
+            <td class="txt-right" style="color: ${getColorByROI(c.roi || 0)}; font-weight: 600;">${(c.roi || 0).toFixed(1)}%</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  document.getElementById('contentAnalysisTable').innerHTML = tableHtml;
+}
+
+function renderContentRanking() {
+  const data = state.data;
+  if (!data.conteudo || data.conteudo.length === 0) return;
+
+  // Ordenar por diferentes critérios
+  const byROI = [...data.conteudo].sort((a, b) => (b.roi || 0) - (a.roi || 0));
+  const byCTR = [...data.conteudo].sort((a, b) => (b.ctr || 0) - (a.ctr || 0));
+  const byCPA = [...data.conteudo].sort((a, a) => (a.cpa || Infinity) - (b.cpa || Infinity));
+
+  const html = `
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+      <div>
+        <div style="font-weight: 700; margin-bottom: 10px; color: var(--green);">🏆 Melhor ROI</div>
+        ${byROI.slice(0, 3).map((c, i) => `
+          <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
+            <div style="font-size: 12px; color: var(--muted);">#${i+1}</div>
+            <div style="font-weight: 600;">${getContentTypeEmoji(c.tipo)} ${c.tipo}</div>
+            <div style="font-size: 14px; color: var(--green); font-weight: 700;">${(c.roi || 0).toFixed(1)}% ROI</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div>
+        <div style="font-weight: 700; margin-bottom: 10px; color: var(--accent);">⚡ Melhor CTR</div>
+        ${byCTR.slice(0, 3).map((c, i) => `
+          <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
+            <div style="font-size: 12px; color: var(--muted);">#${i+1}</div>
+            <div style="font-weight: 600;">${getContentTypeEmoji(c.tipo)} ${c.tipo}</div>
+            <div style="font-size: 14px; color: var(--accent); font-weight: 700;">${(c.ctr || 0).toFixed(2)}% CTR</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div>
+        <div style="font-weight: 700; margin-bottom: 10px; color: #ffc857;">💰 Menor CPA</div>
+        ${byCPA.slice(0, 3).map((c, i) => `
+          <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
+            <div style="font-size: 12px; color: var(--muted);">#${i+1}</div>
+            <div style="font-weight: 600;">${getContentTypeEmoji(c.tipo)} ${c.tipo}</div>
+            <div style="font-size: 14px; color: #ffc857; font-weight: 700;">€${(c.cpa || 0).toFixed(2)} CPA</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('contentRanking').innerHTML = html;
+}
+
+function getContentTypeEmoji(tipo) {
+  const emojis = {
+    'Reel': '🎬',
+    'Post': '📱',
+    'Story': '📖',
+    'Video': '🎥',
+    'Carrossel': '🎠',
+    'Link': '🔗',
+    'Collection': '🛍️',
+    'Slideshow': '📊'
+  };
+  return emojis[tipo] || '📌';
+}
+
+function getColorByROI(roi) {
+  if (roi > 100) return '#37d399'; // Green
+  if (roi > 0) return '#ffc857'; // Amber
+  return '#ff6b6b'; // Red
+}
+
 function renderInsights() {
   const data = state.data;
   if (!data.campanhas || data.campanhas.length === 0) return;
@@ -630,18 +904,44 @@ function generateInsights(data) {
     color: '#37d399'
   });
 
-  // Insight 2: Economia de custos
+  // Insight 2: Melhor tipo de conteúdo
+  if (data.conteudo && data.conteudo.length > 0) {
+    const bestContent = data.conteudo.reduce((a, b) => (b.roi || 0) > (a.roi || 0) ? b : a);
+    const bestCTR = data.conteudo.reduce((a, b) => (b.ctr || 0) > (a.ctr || 0) ? b : a);
+
+    insights.push({
+      title: `🎬 ${getContentTypeEmoji(bestContent.tipo)} ${bestContent.tipo} é ouro puro`,
+      text: `Este tipo de conteúdo tem o melhor ROI (${(bestContent.roi || 0).toFixed(1)}%). Produz mais ${bestContent.tipo}s — replicar isto funciona.`,
+      color: '#37d399'
+    });
+
+    // Insight sobre CTR
+    if (bestCTR.ctr > 2) {
+      insights.push({
+        title: `⚡ CTR excepcional em ${getContentTypeEmoji(bestCTR.tipo)} ${bestCTR.tipo}`,
+        text: `${(bestCTR.ctr || 0).toFixed(2)}% de CTR é muito bom (média é ~1%). O gancho visual/copy está impecável — replicar noutras campanhas.`,
+        color: '#5b8cff'
+      });
+    }
+
+    // Insight sobre eficiência
+    const avgCPA = data.conteudo.reduce((sum, c) => sum + (c.cpa || 0), 0) / data.conteudo.length;
+    const cheapest = data.conteudo.reduce((a, b) => (a.cpa || Infinity) < (b.cpa || Infinity) ? a : b);
+
+    if ((cheapest.cpa || 0) < avgCPA * 0.7) {
+      insights.push({
+        title: `💰 ${getContentTypeEmoji(cheapest.tipo)} ${cheapest.tipo} é 30% mais eficiente`,
+        text: `CPA de €${(cheapest.cpa || 0).toFixed(2)} vs média de €${avgCPA.toFixed(2)}. Alocar mais orçamento aqui é estratégia sólida.`,
+        color: '#ffc857'
+      });
+    }
+  }
+
+  // Insight 3: Economia de custos
   insights.push({
     title: '💰 Otimização de custos',
     text: 'O CPC desceu 3.4% esta semana. Continue a testar públicos segmentados e palavras-chave negativas.',
     color: '#37d399'
-  });
-
-  // Insight 3: Oportunidade
-  insights.push({
-    title: '🎯 Oportunidade',
-    text: 'O CTR aumentou 0.8%. Isto é bom — significa que o copy está a funcionar melhor. Replicar esta abordagem noutras campanhas.',
-    color: '#ffc857'
   });
 
   return insights;
@@ -674,10 +974,43 @@ document.getElementById('exportBtn').onclick = () => {
   link.click();
 };
 
+// ===== DADOS DE EXEMPLO (para teste sem API) =====
+function getMockData() {
+  return {
+    cliente: 'Meta Ads Campaign',
+    resumo: {
+      gastos: 2450.50,
+      vendas: 31245.75,
+      roas: 12.75,
+      cpcMedio: 0.38,
+      ctr: 2.15,
+      conversoes: 145
+    },
+    campanhas: [
+      { nome: 'Campanha A - Produto X', impressoes: 45000, cliques: 980, ctr: 2.18, gastos: 450.50, vendas: 8900, roi: 1875 },
+      { nome: 'Campanha B - Produto Y', impressoes: 38000, cliques: 750, ctr: 1.97, gastos: 380.75, vendas: 7200, roi: 1790 },
+      { nome: 'Campanha C - Black Friday', impressoes: 52000, cliques: 1250, ctr: 2.40, gastos: 620.25, vendas: 15145, roi: 2340 }
+    ],
+    conteudo: [
+      { tipo: 'Reel', posts: 12, impressoes: 85000, cliques: 2100, ctr: 2.47, engagement: 4.2, conversoes: 65, cpa: 8.50, roi: 185 },
+      { tipo: 'Post', posts: 18, impressoes: 32000, cliques: 580, ctr: 1.81, engagement: 2.5, conversoes: 35, cpa: 12.25, roi: 125 },
+      { tipo: 'Story', posts: 24, impressoes: 28000, cliques: 440, ctr: 1.57, engagement: 3.1, conversoes: 25, cpa: 15.50, roi: 95 },
+      { tipo: 'Video', posts: 8, impressoes: 68000, cliques: 1650, ctr: 2.43, engagement: 3.8, conversoes: 20, cpa: 18.75, roi: 145 },
+      { tipo: 'Carrossel', posts: 15, impressoes: 42000, cliques: 940, ctr: 2.24, engagement: 2.9, conversoes: 45, cpa: 10.75, roi: 165 }
+    ]
+  };
+}
+
 // ===== INIT =====
 window.addEventListener('load', () => {
-  fetchData();
-  setInterval(fetchData, REFRESH_INTERVAL);
+  // Tentar carregar da API, e em caso de erro usar dados de exemplo
+  fetchData().catch(() => {
+    state.data = getMockData();
+    render();
+  });
+  setInterval(() => {
+    fetchData().catch(() => console.log('Falha ao atualizar dados'));
+  }, REFRESH_INTERVAL);
 });
 </script>
 
