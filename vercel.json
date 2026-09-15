@@ -1,6 +1,11 @@
 {
-  "buildCommand": "echo 'Static HTML files'",
+  "buildCommand": "echo 'Static HTML files + serverless functions'",
   "outputDirectory": ".",
   "public": true,
-  "env": []
+  "functions": {
+    "api/**/*.js": {
+      "memory": 128,
+      "maxDuration": 10
+    }
+  }
 }

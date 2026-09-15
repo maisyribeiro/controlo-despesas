@@ -3,350 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow, noarchive">
-<title>Dashboard de Campanhas - Meta Ads</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<title>Dashboard de Campanhas</title>
 <style>
 :root {
-  --bg: #0f1220;
-  --panel: #191d2e;
-  --panel2: #222740;
-  --line: #2c3251;
-  --txt: #e7e9f3;
-  --muted: #9aa0bd;
-  --accent: #5b8cff;
-  --accent2: #7c5bff;
-  --green: #37d399;
-  --red: #ff6b6b;
-  --amber: #ffc857;
-  --radius: 14px;
+  --bg: #0f1220; --panel: #191d2e; --panel2: #222740; --line: #2c3251;
+  --txt: #e7e9f3; --muted: #9aa0bd; --accent: #5b8cff;
+  --green: #37d399; --red: #ff6b6b; --amber: #ffc857;
 }
 
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: var(--bg);
-  color: var(--txt);
-  font-size: 15px;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--txt); font-size: 15px; line-height: 1.6; }
 
 header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 22px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel);
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  display: flex; align-items: center; gap: 14px; padding: 16px 22px;
+  border-bottom: 1px solid var(--line); background: var(--panel);
+  position: sticky; top: 0; z-index: 50;
 }
 
-header h1 {
-  font-size: 18px;
-  margin: 0;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
+header h1 { font-size: 18px; font-weight: 700; margin: 0; }
+header .logo { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #1877f2, #0a66c2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 18px; }
+.badge { margin-left: auto; background: var(--panel2); border: 1px solid var(--line); padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--muted); }
 
-header .logo {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, #1877f2, #0a66c2);
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  color: white;
-  font-size: 18px;
-}
+main { padding: 22px; max-width: 1200px; margin: 0 auto; }
 
-.client-badge {
-  margin-left: auto;
-  background: var(--panel2);
-  border: 1px solid var(--line);
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-}
+.toolbar { display: flex; gap: 10px; margin-bottom: 20px; }
+.toolbar button { background: var(--accent); color: #fff; border: none; padding: 10px 16px; border-radius: 9px; cursor: pointer; font-weight: 700; font-size: 14px; }
+.toolbar button:hover { filter: brightness(1.1); }
 
-main {
-  padding: 22px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
+.loading { text-align: center; padding: 40px; color: var(--muted); }
+.spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.toolbar {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-  margin-bottom: 20px;
-}
+.hero { background: linear-gradient(135deg, #1877f2 0%, #0a66c2 100%); border-radius: 14px; padding: 28px; margin-bottom: 22px; color: white; }
+.hero-value { font-size: 42px; font-weight: 800; margin: 8px 0; }
+.hero-text { font-size: 14px; opacity: 0.95; margin-top: 12px; }
 
-.toolbar button {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 9px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 14px;
-}
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.card-label { color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; }
+.card-value { font-size: 26px; font-weight: 800; margin: 8px 0; }
 
-.toolbar button:hover {
-  filter: brightness(1.1);
-}
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 22px; }
+.panel h2 { font-size: 16px; font-weight: 700; margin: 0 0 14px 0; }
 
-.toolbar button.ghost {
-  background: var(--panel2);
-  color: var(--txt);
-  border: 1px solid var(--line);
-}
-
-/* ===== DESTAQUE PRINCIPAL (Hero card) ===== */
-.hero {
-  background: linear-gradient(135deg, #1877f2 0%, #0a66c2 100%);
-  border-radius: var(--radius);
-  padding: 28px;
-  margin-bottom: 22px;
-  color: white;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
-}
-
-.hero .label {
-  font-size: 13px;
-  font-weight: 600;
-  opacity: 0.9;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.hero .value {
-  font-size: 42px;
-  font-weight: 800;
-  margin: 8px 0;
-  line-height: 1;
-}
-
-.hero .subtitle {
-  font-size: 14px;
-  opacity: 0.95;
-  margin-top: 12px;
-  line-height: 1.5;
-}
-
-/* ===== CARDS ===== */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
-  margin-bottom: 22px;
-}
-
-.card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 18px;
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  border-color: var(--accent);
-  background: var(--panel2);
-}
-
-.card .label {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.card .value {
-  font-size: 28px;
-  font-weight: 800;
-  margin-top: 8px;
-  line-height: 1;
-}
-
-.card .delta {
-  font-size: 12px;
-  margin-top: 8px;
-  font-weight: 600;
-}
-
-.delta.positive { color: var(--green); }
-.delta.negative { color: var(--red); }
-.delta.neutral { color: var(--muted); }
-
-/* ===== PAINEL ===== */
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 18px;
-  margin-bottom: 22px;
-}
-
-.panel h3 {
-  margin: 0 0 14px 0;
-  font-size: 15px;
-  font-weight: 700;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.panel h3 .meta {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--muted);
-}
-
-/* ===== GRID ===== */
-.grid2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.grid3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-
-/* ===== TABELA ===== */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  margin-top: 14px;
-}
-
-th, td {
-  text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--line);
-}
-
-th {
-  color: var(--muted);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  cursor: pointer;
-  user-select: none;
-}
-
-tbody tr:hover {
-  background: var(--panel2);
-}
-
+table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 14px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 600; }
+tbody tr:hover { background: var(--panel2); }
 .txt-right { text-align: right; }
+.green { color: var(--green); font-weight: 600; }
 
-/* ===== LOADING ===== */
-.loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--line);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ===== RESPONSIVO ===== */
-@media (max-width: 1024px) {
-  .grid2 { grid-template-columns: 1fr; }
-  .grid3 { grid-template-columns: 1fr 1fr; }
-}
+.error { background: rgba(255, 107, 107, 0.1); border: 1px solid var(--red); color: var(--red); padding: 14px; border-radius: 14px; margin-bottom: 20px; }
 
 @media (max-width: 620px) {
-  header {
-    flex-wrap: wrap;
-    padding: 12px 14px;
-    gap: 10px;
-  }
-
-  header h1 { font-size: 16px; flex: 1; }
-  .client-badge { width: 100%; order: 3; }
+  header { flex-wrap: wrap; padding: 12px 14px; }
+  header h1 { flex: 1; font-size: 16px; }
   main { padding: 14px; }
-  .cards { gap: 10px; margin-bottom: 14px; }
-  .card { padding: 14px; }
-  .card .value { font-size: 22px; }
-  .panel { padding: 14px; }
-  .hero { padding: 20px; }
-  .hero .value { font-size: 32px; }
-  .toolbar { gap: 8px; }
-  .toolbar button { padding: 8px 13px; font-size: 13px; }
-  .grid2, .grid3 { grid-template-columns: 1fr; }
-  table { font-size: 13px; }
-  th, td { padding: 8px 9px; }
-}
-
-canvas { max-height: 300px; }
-
-.error-msg {
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid var(--red);
-  color: var(--red);
-  padding: 12px 14px;
-  border-radius: var(--radius);
-  margin-bottom: 14px;
-}
-
-.empty {
-  text-align: center;
-  color: var(--muted);
-  padding: 50px 20px;
-}
-
-.badge {
-  display: inline-block;
-  padding: 4px 10px;
-  background: var(--panel2);
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-right: 6px;
+  .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
 </style>
 </head>
@@ -355,663 +68,141 @@ canvas { max-height: 300px; }
 <header>
   <div class="logo">f</div>
   <h1>Dashboard de Campanhas</h1>
-  <div class="client-badge" id="clientBadge">Cliente</div>
+  <div class="badge">📍 Carregando...</div>
 </header>
 
 <main>
   <div class="toolbar">
-    <button id="refreshBtn">🔄 Atualizar</button>
-    <button class="ghost" id="settingsBtn">⚙️ Configurações</button>
+    <button onclick="location.reload()">🔄 Atualizar</button>
   </div>
 
-  <!-- DESTAQUE PRINCIPAL: Métrica do mês -->
-  <div class="hero" id="heroSection">
-    <div class="hero-content">
-      <div class="label">Destaque deste mês</div>
-      <div class="value" id="heroValue">—</div>
-      <div class="subtitle" id="heroSubtitle">Carregando dados...</div>
-    </div>
-  </div>
-
-  <!-- KPIs PRINCIPAIS -->
-  <div class="cards" id="kpiCards">
-    <div class="loading"><div class="spinner"></div> Carregando métricas...</div>
-  </div>
-
-  <!-- GRÁFICOS PRINCIPAIS -->
-  <div class="grid2">
-    <div class="panel">
-      <h3>Performance das campanhas <span class="meta">(últimos 30 dias)</span></h3>
-      <canvas id="chartCampaigns"></canvas>
-    </div>
-    <div class="panel">
-      <h3>Evolução do CPC <span class="meta">(tendência)</span></h3>
-      <canvas id="chartCPC"></canvas>
-    </div>
-  </div>
-
-  <!-- ANÁLISE POR TIPO DE CONTEÚDO -->
-  <div class="grid2">
-    <div class="panel">
-      <h3>Performance por tipo de conteúdo <span class="meta">(CTR & Engagement)</span></h3>
-      <canvas id="chartContentType"></canvas>
-    </div>
-    <div class="panel">
-      <h3>ROI por tipo de conteúdo <span class="meta">(Retorno de investimento)</span></h3>
-      <canvas id="chartContentROI"></canvas>
-    </div>
-  </div>
-
-  <!-- DISTRIBUIÇÃO E HEATMAP -->
-  <div class="grid2">
-    <div class="panel">
-      <h3>Distribuição de conteúdo <span class="meta">(por tipo)</span></h3>
-      <canvas id="chartContentDistribution"></canvas>
-    </div>
-    <div class="panel">
-      <h3>Custo de aquisição por tipo <span class="meta">(CPA breakdown)</span></h3>
-      <canvas id="chartCPA"></canvas>
-    </div>
-  </div>
-
-  <!-- TABELA DE CAMPANHAS -->
-  <div class="panel">
-    <h3>
-      <span>Detalhes das campanhas</span>
-      <button class="ghost" id="exportBtn" style="padding: 6px 12px; font-size: 12px; margin: 0;">📊 Exportar</button>
-    </h3>
-    <div id="campaignsTable"></div>
-  </div>
-
-  <!-- ANÁLISE DETALHADA POR TIPO DE CONTEÚDO -->
-  <div class="panel">
-    <h3>🎬 Análise de conteúdo</h3>
-    <div id="contentAnalysisTable"></div>
-  </div>
-
-  <!-- COMPARAÇÃO: QUAL TIPO FUNCIONA MELHOR? -->
-  <div class="panel">
-    <h3>🏆 Ranking de eficiência por tipo</h3>
-    <div id="contentRanking"></div>
-  </div>
-
-  <!-- INSIGHTS -->
-  <div class="panel">
-    <h3>📈 Insights & Recomendações</h3>
-    <div id="insightsSection" style="display: flex; flex-direction: column; gap: 12px;">
-      <div class="loading"><div class="spinner"></div> Analisando dados...</div>
+  <div id="content">
+    <div class="loading">
+      <div class="spinner"></div> <span>Carregando dados...</span>
     </div>
   </div>
 </main>
 
 <script>
-// Config
-const API_URL = 'https://dashboardmetaads-wheat.vercel.app/dashboard/campanhas';
-const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutos
-
-// Estado
-let state = {
-  data: null,
-  lastUpdate: null,
-  clientName: 'Carregando...'
-};
-
-// ===== FETCH & UPDATE =====
-async function fetchData() {
+async function loadData() {
   try {
-    document.querySelector('.toolbar').innerHTML += '<div class="loading"><div class="spinner"></div></div>';
-
-    const response = await fetch(API_URL, {
-      headers: { 'Accept': 'application/json' }
+    // Fetch via local serverless proxy
+    const response = await fetch('/api/campanhas', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
     });
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    console.log('Status:', response.status);
 
-    state.data = await response.json();
-    state.lastUpdate = new Date();
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
 
-    document.querySelector('.toolbar .loading')?.remove();
-    render();
+    const data = await response.json();
+    render(data);
+
   } catch (error) {
-    console.error('Erro ao carregar dados:', error);
-    showError(`Erro ao carregar dados: ${error.message}`);
-  }
-}
-
-function showError(msg) {
-  const errorDiv = document.createElement('div');
-  errorDiv.className = 'error-msg';
-  errorDiv.textContent = msg;
-  document.querySelector('main').insertAdjacentElement('afterbegin', errorDiv);
-}
-
-// ===== RENDER =====
-function render() {
-  if (!state.data) return;
-
-  renderHero();
-  renderKPIs();
-  renderCharts();
-  renderTable();
-  renderContentAnalysis();
-  renderContentRanking();
-  renderInsights();
-  updateClientBadge();
-}
-
-function renderHero() {
-  const data = state.data;
-
-  // Encontra a métrica mais significativa
-  let heroMetric = { label: '', value: 0, change: 0, subtitle: '' };
-
-  if (data.campanhas && data.campanhas.length > 0) {
-    // Calcula melhor campanha por ROI
-    const bestRoi = data.campanhas.reduce((best, camp) => {
-      const roi = ((camp.vendas - camp.gastos) / camp.gastos) * 100;
-      return roi > (best.roi || 0) ? { ...camp, roi } : best;
-    }, {});
-
-    heroMetric.label = bestRoi.nome || 'Melhor campanha';
-    heroMetric.value = `${(bestRoi.roi || 0).toFixed(1)}% ROI`;
-    heroMetric.subtitle = `${bestRoi.nome} está a render bem. Continue com esta estratégia.`;
-  }
-
-  document.querySelector('.hero .label').textContent = heroMetric.label;
-  document.querySelector('.hero .value').textContent = heroMetric.value;
-  document.querySelector('.hero .subtitle').textContent = heroMetric.subtitle;
-}
-
-function renderKPIs() {
-  const data = state.data;
-  if (!data.resumo) return;
-
-  const resumo = data.resumo;
-  const cards = [
-    { label: 'Gastos totais', value: `€${(resumo.gastos || 0).toFixed(2)}`, delta: '-5.2%', type: 'neutral' },
-    { label: 'Vendas', value: `€${(resumo.vendas || 0).toFixed(2)}`, delta: '+12.8%', type: 'positive' },
-    { label: 'ROAS', value: `${(resumo.roas || 1).toFixed(2)}x`, delta: '+2.1%', type: 'positive' },
-    { label: 'CPC médio', value: `€${(resumo.cpcMedio || 0).toFixed(2)}`, delta: '-3.4%', type: 'positive' },
-    { label: 'Taxa de clique', value: `${(resumo.ctr || 0).toFixed(2)}%`, delta: '+0.8%', type: 'positive' },
-    { label: 'Conversões', value: Math.round(resumo.conversoes || 0), delta: '+15.3%', type: 'positive' }
-  ];
-
-  const kpiHtml = cards.map(card => `
-    <div class="card">
-      <div class="label">${card.label}</div>
-      <div class="value">${card.value}</div>
-      <div class="delta ${card.type}">${card.delta}</div>
-    </div>
-  `).join('');
-
-  document.getElementById('kpiCards').innerHTML = kpiHtml;
-}
-
-function renderCharts() {
-  const data = state.data;
-  if (!data.campanhas) return;
-
-  // Chart 1: Performance das campanhas
-  const ctx1 = document.getElementById('chartCampaigns').getContext('2d');
-  new Chart(ctx1, {
-    type: 'bar',
-    data: {
-      labels: data.campanhas.map(c => c.nome),
-      datasets: [
-        {
-          label: 'Gastos (€)',
-          data: data.campanhas.map(c => c.gastos),
-          backgroundColor: 'rgba(91, 140, 255, 0.3)',
-          borderColor: '#5b8cff',
-          borderWidth: 1
-        },
-        {
-          label: 'Vendas (€)',
-          data: data.campanhas.map(c => c.vendas),
-          backgroundColor: 'rgba(55, 211, 153, 0.3)',
-          borderColor: '#37d399',
-          borderWidth: 1
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: { legend: { display: true, labels: { color: '#9aa0bd' } } },
-      scales: {
-        y: { ticks: { color: '#9aa0bd' }, grid: { color: '#2c3251' } },
-        x: { ticks: { color: '#9aa0bd' }, grid: { display: false } }
-      }
-    }
-  });
-
-  // Chart 2: Evolução CPC
-  const ctx2 = document.getElementById('chartCPC').getContext('2d');
-  new Chart(ctx2, {
-    type: 'line',
-    data: {
-      labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-      datasets: [{
-        label: 'CPC (€)',
-        data: [0.45, 0.42, 0.39, 0.38],
-        borderColor: '#7c5bff',
-        backgroundColor: 'rgba(124, 91, 255, 0.1)',
-        tension: 0.4,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: { legend: { display: true, labels: { color: '#9aa0bd' } } },
-      scales: {
-        y: { ticks: { color: '#9aa0bd' }, grid: { color: '#2c3251' } },
-        x: { ticks: { color: '#9aa0bd' }, grid: { display: false } }
-      }
-    }
-  });
-
-  // Chart 3: Performance por tipo de conteúdo
-  if (data.conteudo && data.conteudo.length > 0) {
-    const ctx3 = document.getElementById('chartContentType').getContext('2d');
-    new Chart(ctx3, {
-      type: 'bar',
-      data: {
-        labels: data.conteudo.map(c => c.tipo),
-        datasets: [
-          {
-            label: 'CTR (%)',
-            data: data.conteudo.map(c => c.ctr || 0),
-            backgroundColor: 'rgba(91, 140, 255, 0.5)',
-            borderColor: '#5b8cff',
-            borderWidth: 1,
-            yAxisID: 'y'
-          },
-          {
-            label: 'Engagement (%)',
-            data: data.conteudo.map(c => c.engagement || 0),
-            backgroundColor: 'rgba(124, 91, 255, 0.5)',
-            borderColor: '#7c5bff',
-            borderWidth: 1,
-            yAxisID: 'y'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: true, labels: { color: '#9aa0bd' } } },
-        scales: {
-          y: { ticks: { color: '#9aa0bd' }, grid: { color: '#2c3251' } },
-          x: { ticks: { color: '#9aa0bd' }, grid: { display: false } }
-        }
-      }
-    });
-
-    // Chart 4: ROI por tipo de conteúdo
-    const ctx4 = document.getElementById('chartContentROI').getContext('2d');
-    new Chart(ctx4, {
-      type: 'doughnut',
-      data: {
-        labels: data.conteudo.map(c => c.tipo),
-        datasets: [{
-          data: data.conteudo.map(c => c.roi || 0),
-          backgroundColor: ['#5b8cff', '#7c5bff', '#37d399', '#ffc857', '#ff6b6b', '#37d399'].slice(0, data.conteudo.length),
-          borderColor: '#191d2e',
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { display: true, labels: { color: '#9aa0bd' }, position: 'right' },
-          tooltip: { callbacks: { label: (ctx) => `ROI: ${ctx.parsed}%` } }
-        }
-      }
-    });
-
-    // Chart 5: Distribuição de conteúdo
-    const ctx5 = document.getElementById('chartContentDistribution').getContext('2d');
-    new Chart(ctx5, {
-      type: 'pie',
-      data: {
-        labels: data.conteudo.map(c => c.tipo),
-        datasets: [{
-          data: data.conteudo.map(c => c.posts || 0),
-          backgroundColor: ['#5b8cff', '#7c5bff', '#37d399', '#ffc857', '#ff6b6b', '#37d399'].slice(0, data.conteudo.length),
-          borderColor: '#191d2e',
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { display: true, labels: { color: '#9aa0bd' }, position: 'right' },
-          tooltip: { callbacks: { label: (ctx) => `Posts: ${ctx.parsed}` } }
-        }
-      }
-    });
-
-    // Chart 6: CPA por tipo
-    const ctx6 = document.getElementById('chartCPA').getContext('2d');
-    new Chart(ctx6, {
-      type: 'bar',
-      data: {
-        labels: data.conteudo.map(c => c.tipo),
-        datasets: [{
-          label: 'CPA (€)',
-          data: data.conteudo.map(c => c.cpa || 0),
-          backgroundColor: data.conteudo.map((c, i) => {
-            const cpa = c.cpa || 0;
-            return cpa < 10 ? '#37d399' : cpa < 20 ? '#ffc857' : '#ff6b6b';
-          }),
-          borderColor: '#191d2e',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        indexAxis: 'y',
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: '#9aa0bd' }, grid: { color: '#2c3251' } },
-          y: { ticks: { color: '#9aa0bd' }, grid: { display: false } }
-        }
-      }
-    });
-  }
-}
-
-function renderTable() {
-  const data = state.data;
-  if (!data.campanhas) {
-    document.getElementById('campaignsTable').innerHTML = '<p class="empty">Sem dados de campanhas</p>';
-    return;
-  }
-
-  const tableHtml = `
-    <table>
-      <thead>
-        <tr>
-          <th>Campanha</th>
-          <th class="txt-right">Impressões</th>
-          <th class="txt-right">Cliques</th>
-          <th class="txt-right">CTR</th>
-          <th class="txt-right">Gastos (€)</th>
-          <th class="txt-right">Vendas (€)</th>
-          <th class="txt-right">ROI</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.campanhas.map(c => `
-          <tr>
-            <td style="font-weight: 600;">${c.nome}</td>
-            <td class="txt-right">${(c.impressoes || 0).toLocaleString()}</td>
-            <td class="txt-right">${(c.cliques || 0).toLocaleString()}</td>
-            <td class="txt-right">${((c.ctr || 0)).toFixed(2)}%</td>
-            <td class="txt-right">€${(c.gastos || 0).toFixed(2)}</td>
-            <td class="txt-right" style="color: #37d399; font-weight: 600;">€${(c.vendas || 0).toFixed(2)}</td>
-            <td class="txt-right" style="${((c.roi || 0) > 0) ? 'color: #37d399' : 'color: #ff6b6b'}; font-weight: 600;">${((c.roi || 0)).toFixed(1)}%</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-
-  document.getElementById('campaignsTable').innerHTML = tableHtml;
-}
-
-function renderContentAnalysis() {
-  const data = state.data;
-  if (!data.conteudo || data.conteudo.length === 0) {
-    document.getElementById('contentAnalysisTable').innerHTML = '<p class="empty">Sem dados de conteúdo</p>';
-    return;
-  }
-
-  const tableHtml = `
-    <table>
-      <thead>
-        <tr>
-          <th>Tipo de conteúdo</th>
-          <th class="txt-right">Posts</th>
-          <th class="txt-right">Impressões</th>
-          <th class="txt-right">CTR</th>
-          <th class="txt-right">Engagement</th>
-          <th class="txt-right">Conversões</th>
-          <th class="txt-right">CPA (€)</th>
-          <th class="txt-right">ROI</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.conteudo.map((c, i) => `
-          <tr style="border-left: 3px solid ${getColorByROI(c.roi || 0)};">
-            <td style="font-weight: 600;">
-              ${getContentTypeEmoji(c.tipo)} ${c.tipo}
-            </td>
-            <td class="txt-right">${(c.posts || 0).toLocaleString()}</td>
-            <td class="txt-right">${(c.impressoes || 0).toLocaleString()}</td>
-            <td class="txt-right">${(c.ctr || 0).toFixed(2)}%</td>
-            <td class="txt-right">${(c.engagement || 0).toFixed(2)}%</td>
-            <td class="txt-right">${(c.conversoes || 0).toLocaleString()}</td>
-            <td class="txt-right" style="font-weight: 600;">€${(c.cpa || 0).toFixed(2)}</td>
-            <td class="txt-right" style="color: ${getColorByROI(c.roi || 0)}; font-weight: 600;">${(c.roi || 0).toFixed(1)}%</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-
-  document.getElementById('contentAnalysisTable').innerHTML = tableHtml;
-}
-
-function renderContentRanking() {
-  const data = state.data;
-  if (!data.conteudo || data.conteudo.length === 0) return;
-
-  // Ordenar por diferentes critérios
-  const byROI = [...data.conteudo].sort((a, b) => (b.roi || 0) - (a.roi || 0));
-  const byCTR = [...data.conteudo].sort((a, b) => (b.ctr || 0) - (a.ctr || 0));
-  const byCPA = [...data.conteudo].sort((a, a) => (a.cpa || Infinity) - (b.cpa || Infinity));
-
-  const html = `
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
-      <div>
-        <div style="font-weight: 700; margin-bottom: 10px; color: var(--green);">🏆 Melhor ROI</div>
-        ${byROI.slice(0, 3).map((c, i) => `
-          <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
-            <div style="font-size: 12px; color: var(--muted);">#${i+1}</div>
-            <div style="font-weight: 600;">${getContentTypeEmoji(c.tipo)} ${c.tipo}</div>
-            <div style="font-size: 14px; color: var(--green); font-weight: 700;">${(c.roi || 0).toFixed(1)}% ROI</div>
-          </div>
-        `).join('')}
+    console.error('Erro:', error);
+    document.getElementById('content').innerHTML = `
+      <div class="error">
+        ⚠️ Erro ao carregar dados: ${error.message}<br>
+        <small>Contacta o suporte se o problema persistir</small>
       </div>
+    `;
+  }
+}
 
-      <div>
-        <div style="font-weight: 700; margin-bottom: 10px; color: var(--accent);">⚡ Melhor CTR</div>
-        ${byCTR.slice(0, 3).map((c, i) => `
-          <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
-            <div style="font-size: 12px; color: var(--muted);">#${i+1}</div>
-            <div style="font-weight: 600;">${getContentTypeEmoji(c.tipo)} ${c.tipo}</div>
-            <div style="font-size: 14px; color: var(--accent); font-weight: 700;">${(c.ctr || 0).toFixed(2)}% CTR</div>
-          </div>
-        `).join('')}
+function render(data) {
+  const cliente = data.cliente || 'Meta Ads';
+  const resumo = data.resumo || {};
+  const campanhas = data.campanhas || [];
+
+  document.querySelector('.badge').textContent = `📍 ${cliente}`;
+
+  let html = '';
+
+  // HERO
+  if (campanhas.length > 0) {
+    const best = campanhas.reduce((a, b) => (b.roi || 0) > (a.roi || 0) ? b : a);
+    html += `
+      <div class="hero">
+        <div style="font-size: 13px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Melhor Campanha</div>
+        <div class="hero-value">${best.nome || 'N/A'}</div>
+        <div class="hero-text">ROI: ${(best.roi || 0).toFixed(1)}%</div>
       </div>
+    `;
+  }
 
-      <div>
-        <div style="font-weight: 700; margin-bottom: 10px; color: #ffc857;">💰 Menor CPA</div>
-        ${byCPA.slice(0, 3).map((c, i) => `
-          <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
-            <div style="font-size: 12px; color: var(--muted);">#${i+1}</div>
-            <div style="font-weight: 600;">${getContentTypeEmoji(c.tipo)} ${c.tipo}</div>
-            <div style="font-size: 14px; color: #ffc857; font-weight: 700;">€${(c.cpa || 0).toFixed(2)} CPA</div>
-          </div>
-        `).join('')}
+  // KPIS
+  html += `
+    <div class="cards">
+      <div class="card">
+        <div class="card-label">Gastos</div>
+        <div class="card-value">€${(resumo.gastos || 0).toFixed(0)}</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Vendas</div>
+        <div class="card-value">€${(resumo.vendas || 0).toFixed(0)}</div>
+      </div>
+      <div class="card">
+        <div class="card-label">ROAS</div>
+        <div class="card-value">${(resumo.roas || 0).toFixed(2)}x</div>
+      </div>
+      <div class="card">
+        <div class="card-label">CPC</div>
+        <div class="card-value">€${(resumo.cpcMedio || 0).toFixed(2)}</div>
+      </div>
+      <div class="card">
+        <div class="card-label">CTR</div>
+        <div class="card-value">${(resumo.ctr || 0).toFixed(2)}%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Conversões</div>
+        <div class="card-value">${Math.round(resumo.conversoes || 0)}</div>
       </div>
     </div>
   `;
 
-  document.getElementById('contentRanking').innerHTML = html;
-}
-
-function getContentTypeEmoji(tipo) {
-  const emojis = {
-    'Reel': '🎬',
-    'Post': '📱',
-    'Story': '📖',
-    'Video': '🎥',
-    'Carrossel': '🎠',
-    'Link': '🔗',
-    'Collection': '🛍️',
-    'Slideshow': '📊'
-  };
-  return emojis[tipo] || '📌';
-}
-
-function getColorByROI(roi) {
-  if (roi > 100) return '#37d399'; // Green
-  if (roi > 0) return '#ffc857'; // Amber
-  return '#ff6b6b'; // Red
-}
-
-function renderInsights() {
-  const data = state.data;
-  if (!data.campanhas || data.campanhas.length === 0) return;
-
-  const insights = generateInsights(data);
-
-  const html = insights.map(insight => `
-    <div style="padding: 12px 14px; background: var(--panel2); border-radius: 8px; border-left: 3px solid ${insight.color};">
-      <div style="font-weight: 600; margin-bottom: 4px;">${insight.title}</div>
-      <div style="font-size: 13px; color: var(--muted);">${insight.text}</div>
-    </div>
-  `).join('');
-
-  document.getElementById('insightsSection').innerHTML = html || '<p class="muted">Sem insights disponíveis</p>';
-}
-
-function generateInsights(data) {
-  const insights = [];
-
-  // Insight 1: Melhor campanha
-  const best = data.campanhas.reduce((a, b) => (b.roi || 0) > (a.roi || 0) ? b : a);
-  insights.push({
-    title: `🏆 ${best.nome} lidera`,
-    text: `A campanha "${best.nome}" tem o melhor ROI (${(best.roi || 0).toFixed(1)}%). Considere aumentar o budget aqui.`,
-    color: '#37d399'
-  });
-
-  // Insight 2: Melhor tipo de conteúdo
-  if (data.conteudo && data.conteudo.length > 0) {
-    const bestContent = data.conteudo.reduce((a, b) => (b.roi || 0) > (a.roi || 0) ? b : a);
-    const bestCTR = data.conteudo.reduce((a, b) => (b.ctr || 0) > (a.ctr || 0) ? b : a);
-
-    insights.push({
-      title: `🎬 ${getContentTypeEmoji(bestContent.tipo)} ${bestContent.tipo} é ouro puro`,
-      text: `Este tipo de conteúdo tem o melhor ROI (${(bestContent.roi || 0).toFixed(1)}%). Produz mais ${bestContent.tipo}s — replicar isto funciona.`,
-      color: '#37d399'
-    });
-
-    // Insight sobre CTR
-    if (bestCTR.ctr > 2) {
-      insights.push({
-        title: `⚡ CTR excepcional em ${getContentTypeEmoji(bestCTR.tipo)} ${bestCTR.tipo}`,
-        text: `${(bestCTR.ctr || 0).toFixed(2)}% de CTR é muito bom (média é ~1%). O gancho visual/copy está impecável — replicar noutras campanhas.`,
-        color: '#5b8cff'
-      });
-    }
-
-    // Insight sobre eficiência
-    const avgCPA = data.conteudo.reduce((sum, c) => sum + (c.cpa || 0), 0) / data.conteudo.length;
-    const cheapest = data.conteudo.reduce((a, b) => (a.cpa || Infinity) < (b.cpa || Infinity) ? a : b);
-
-    if ((cheapest.cpa || 0) < avgCPA * 0.7) {
-      insights.push({
-        title: `💰 ${getContentTypeEmoji(cheapest.tipo)} ${cheapest.tipo} é 30% mais eficiente`,
-        text: `CPA de €${(cheapest.cpa || 0).toFixed(2)} vs média de €${avgCPA.toFixed(2)}. Alocar mais orçamento aqui é estratégia sólida.`,
-        color: '#ffc857'
-      });
-    }
+  // CAMPANHAS
+  if (campanhas.length > 0) {
+    html += `
+      <div class="panel">
+        <h2>Campanhas (${campanhas.length})</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th class="txt-right">Impressões</th>
+              <th class="txt-right">Cliques</th>
+              <th class="txt-right">Gastos</th>
+              <th class="txt-right">Vendas</th>
+              <th class="txt-right">ROI</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${campanhas.map(c => `
+              <tr>
+                <td style="font-weight: 600;">${c.nome || 'N/A'}</td>
+                <td class="txt-right">${(c.impressoes || 0).toLocaleString()}</td>
+                <td class="txt-right">${(c.cliques || 0).toLocaleString()}</td>
+                <td class="txt-right">€${(c.gastos || 0).toFixed(2)}</td>
+                <td class="txt-right green">€${(c.vendas || 0).toFixed(2)}</td>
+                <td class="txt-right green">${(c.roi || 0).toFixed(1)}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
   }
 
-  // Insight 3: Economia de custos
-  insights.push({
-    title: '💰 Otimização de custos',
-    text: 'O CPC desceu 3.4% esta semana. Continue a testar públicos segmentados e palavras-chave negativas.',
-    color: '#37d399'
-  });
-
-  return insights;
+  document.getElementById('content').innerHTML = html;
 }
 
-function updateClientBadge() {
-  const badge = document.getElementById('clientBadge');
-  if (state.data && state.data.cliente) {
-    badge.textContent = `📍 ${state.data.cliente}`;
-  }
-}
-
-// ===== EVENTOS =====
-document.getElementById('refreshBtn').onclick = () => {
-  fetchData();
-};
-
-document.getElementById('exportBtn').onclick = () => {
-  if (!state.data) return;
-
-  let csv = 'Campanha,Impressões,Cliques,CTR,Gastos,Vendas,ROI\n';
-  state.data.campanhas.forEach(c => {
-    csv += `"${c.nome}",${c.impressoes},${c.cliques},${c.ctr},${c.gastos},${c.vendas},${c.roi}\n`;
-  });
-
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `campanhas-${new Date().toISOString().split('T')[0]}.csv`;
-  link.click();
-};
-
-// ===== DADOS DE EXEMPLO (para teste sem API) =====
-function getMockData() {
-  return {
-    cliente: 'Meta Ads Campaign',
-    resumo: {
-      gastos: 2450.50,
-      vendas: 31245.75,
-      roas: 12.75,
-      cpcMedio: 0.38,
-      ctr: 2.15,
-      conversoes: 145
-    },
-    campanhas: [
-      { nome: 'Campanha A - Produto X', impressoes: 45000, cliques: 980, ctr: 2.18, gastos: 450.50, vendas: 8900, roi: 1875 },
-      { nome: 'Campanha B - Produto Y', impressoes: 38000, cliques: 750, ctr: 1.97, gastos: 380.75, vendas: 7200, roi: 1790 },
-      { nome: 'Campanha C - Black Friday', impressoes: 52000, cliques: 1250, ctr: 2.40, gastos: 620.25, vendas: 15145, roi: 2340 }
-    ],
-    conteudo: [
-      { tipo: 'Reel', posts: 12, impressoes: 85000, cliques: 2100, ctr: 2.47, engagement: 4.2, conversoes: 65, cpa: 8.50, roi: 185 },
-      { tipo: 'Post', posts: 18, impressoes: 32000, cliques: 580, ctr: 1.81, engagement: 2.5, conversoes: 35, cpa: 12.25, roi: 125 },
-      { tipo: 'Story', posts: 24, impressoes: 28000, cliques: 440, ctr: 1.57, engagement: 3.1, conversoes: 25, cpa: 15.50, roi: 95 },
-      { tipo: 'Video', posts: 8, impressoes: 68000, cliques: 1650, ctr: 2.43, engagement: 3.8, conversoes: 20, cpa: 18.75, roi: 145 },
-      { tipo: 'Carrossel', posts: 15, impressoes: 42000, cliques: 940, ctr: 2.24, engagement: 2.9, conversoes: 45, cpa: 10.75, roi: 165 }
-    ]
-  };
-}
-
-// ===== INIT =====
-window.addEventListener('load', () => {
-  // Tentar carregar da API, e em caso de erro usar dados de exemplo
-  fetchData().catch(() => {
-    state.data = getMockData();
-    render();
-  });
-  setInterval(() => {
-    fetchData().catch(() => console.log('Falha ao atualizar dados'));
-  }, REFRESH_INTERVAL);
-});
+// Carrega quando a página abre
+document.addEventListener('DOMContentLoaded', loadData);
 </script>
 
 </body>
