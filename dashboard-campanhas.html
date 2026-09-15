@@ -26,6 +26,14 @@ header .logo { width: 34px; height: 34px; border-radius: 9px; background: linear
 
 main { padding: 22px; max-width: 1200px; margin: 0 auto; }
 
+.toolbar { display: flex; gap: 10px; margin-bottom: 20px; }
+.toolbar button { background: var(--accent); color: #fff; border: none; padding: 10px 16px; border-radius: 9px; cursor: pointer; font-weight: 700; }
+.toolbar button:hover { filter: brightness(1.1); }
+
+.loading { text-align: center; padding: 40px; color: var(--muted); }
+.spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
 .hero {
   background: linear-gradient(135deg, #1877f2 0%, #0a66c2 100%);
   border-radius: 14px; padding: 28px; margin-bottom: 22px; color: white;
@@ -64,43 +72,26 @@ tbody tr:hover { background: var(--panel2); }
 .txt-right { text-align: right; }
 .green { color: var(--green); font-weight: 600; }
 .amber { color: var(--amber); font-weight: 600; }
+.red { color: var(--red); font-weight: 600; }
 
-.insight {
-  background: var(--panel2); border-left: 3px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
-}
-
-.insight-title { font-weight: 600; margin-bottom: 4px; }
-.insight-text { font-size: 13px; color: var(--muted); }
-
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-
-.rank-item {
-  background: var(--panel2); border-radius: 8px; padding: 10px; margin-bottom: 8px;
-}
-
-.rank-number { font-size: 12px; color: var(--muted); }
-.rank-title { font-weight: 600; margin: 4px 0; }
-.rank-value { font-size: 14px; font-weight: 700; }
+.error { background: rgba(255, 107, 107, 0.1); border: 1px solid var(--red); color: var(--red); padding: 14px; border-radius: 14px; margin-bottom: 20px; }
 
 @media (max-width: 1024px) {
-  .grid2, .grid3 { grid-template-columns: 1fr; }
+  .grid2 { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 620px) {
   header { flex-wrap: wrap; padding: 12px 14px; }
   header h1 { flex: 1; font-size: 16px; }
-  .badge { width: 100%; order: 3; }
+  .badge { width: 100%; }
   main { padding: 14px; }
   .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .card { padding: 14px; }
   .card-value { font-size: 22px; }
   .hero { padding: 20px; }
   .hero-value { font-size: 32px; }
-  .panel h2 { font-size: 14px; }
   table { font-size: 13px; }
   th, td { padding: 8px 9px; }
-  .grid2, .grid3 { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -109,254 +100,186 @@ tbody tr:hover { background: var(--panel2); }
 <header>
   <div class="logo">f</div>
   <h1>Dashboard de Campanhas</h1>
-  <div class="badge">📍 Meta Ads</div>
+  <div class="badge" id="badge">📍 Carregando...</div>
 </header>
 
 <main>
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-label">Destaque deste mês</div>
-    <div class="hero-value">🎬 Reels Dominam</div>
-    <div class="hero-text">Os vídeos curtos estão gerando o melhor ROI (185%). Continua produzindo Reels — é ouro puro.</div>
+  <div class="toolbar">
+    <button onclick="location.reload()">🔄 Atualizar</button>
   </div>
 
-  <!-- KPIS -->
-  <div class="cards">
-    <div class="card">
-      <div class="card-label">Gastos totais</div>
-      <div class="card-value">€2,450</div>
-      <div class="card-delta">-5.2%</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Vendas</div>
-      <div class="card-value">€31,245</div>
-      <div class="card-delta">+12.8%</div>
-    </div>
-    <div class="card">
-      <div class="card-label">ROAS</div>
-      <div class="card-value">12.75x</div>
-      <div class="card-delta">+2.1%</div>
-    </div>
-    <div class="card">
-      <div class="card-label">CPC</div>
-      <div class="card-value">€0.38</div>
-      <div class="card-delta">-3.4%</div>
-    </div>
-    <div class="card">
-      <div class="card-label">CTR</div>
-      <div class="card-value">2.15%</div>
-      <div class="card-delta">+0.8%</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Conversões</div>
-      <div class="card-value">145</div>
-      <div class="card-delta">+15.3%</div>
+  <div id="content">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p style="margin-top: 16px;">Carregando dados da API...</p>
     </div>
   </div>
-
-  <!-- CAMPANHAS -->
-  <div class="panel">
-    <h2>📊 Detalhes das campanhas</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Campanha</th>
-          <th class="txt-right">Impressões</th>
-          <th class="txt-right">CTR</th>
-          <th class="txt-right">Gastos</th>
-          <th class="txt-right">Vendas</th>
-          <th class="txt-right">ROI</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="font-weight: 600;">Campanha A - Produto X</td>
-          <td class="txt-right">45,000</td>
-          <td class="txt-right">2.18%</td>
-          <td class="txt-right">€450.50</td>
-          <td class="txt-right green">€8,900</td>
-          <td class="txt-right green">1875%</td>
-        </tr>
-        <tr>
-          <td style="font-weight: 600;">Campanha B - Produto Y</td>
-          <td class="txt-right">38,000</td>
-          <td class="txt-right">1.97%</td>
-          <td class="txt-right">€380.75</td>
-          <td class="txt-right green">€7,200</td>
-          <td class="txt-right green">1790%</td>
-        </tr>
-        <tr>
-          <td style="font-weight: 600;">Campanha C - Black Friday</td>
-          <td class="txt-right">52,000</td>
-          <td class="txt-right">2.40%</td>
-          <td class="txt-right">€620.25</td>
-          <td class="txt-right green">€15,145</td>
-          <td class="txt-right green">2340%</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- CONTEÚDO -->
-  <div class="panel">
-    <h2>🎬 Análise de conteúdo</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Tipo</th>
-          <th class="txt-right">Posts</th>
-          <th class="txt-right">Impressões</th>
-          <th class="txt-right">CTR</th>
-          <th class="txt-right">Engagement</th>
-          <th class="txt-right">Conversões</th>
-          <th class="txt-right">CPA</th>
-          <th class="txt-right">ROI</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr style="border-left: 3px solid var(--green);">
-          <td style="font-weight: 600;">🎬 Reel</td>
-          <td class="txt-right">12</td>
-          <td class="txt-right">85,000</td>
-          <td class="txt-right">2.47%</td>
-          <td class="txt-right">4.2%</td>
-          <td class="txt-right">65</td>
-          <td class="txt-right">€8.50</td>
-          <td class="txt-right green">185%</td>
-        </tr>
-        <tr style="border-left: 3px solid var(--amber);">
-          <td style="font-weight: 600;">📱 Post</td>
-          <td class="txt-right">18</td>
-          <td class="txt-right">32,000</td>
-          <td class="txt-right">1.81%</td>
-          <td class="txt-right">2.5%</td>
-          <td class="txt-right">35</td>
-          <td class="txt-right">€12.25</td>
-          <td class="txt-right amber">125%</td>
-        </tr>
-        <tr style="border-left: 3px solid var(--amber);">
-          <td style="font-weight: 600;">📖 Story</td>
-          <td class="txt-right">24</td>
-          <td class="txt-right">28,000</td>
-          <td class="txt-right">1.57%</td>
-          <td class="txt-right">3.1%</td>
-          <td class="txt-right">25</td>
-          <td class="txt-right">€15.50</td>
-          <td class="txt-right amber">95%</td>
-        </tr>
-        <tr style="border-left: 3px solid var(--amber);">
-          <td style="font-weight: 600;">🎥 Video</td>
-          <td class="txt-right">8</td>
-          <td class="txt-right">68,000</td>
-          <td class="txt-right">2.43%</td>
-          <td class="txt-right">3.8%</td>
-          <td class="txt-right">20</td>
-          <td class="txt-right">€18.75</td>
-          <td class="txt-right amber">145%</td>
-        </tr>
-        <tr style="border-left: 3px solid var(--green);">
-          <td style="font-weight: 600;">🎠 Carrossel</td>
-          <td class="txt-right">15</td>
-          <td class="txt-right">42,000</td>
-          <td class="txt-right">2.24%</td>
-          <td class="txt-right">2.9%</td>
-          <td class="txt-right">45</td>
-          <td class="txt-right">€10.75</td>
-          <td class="txt-right green">165%</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- RANKING -->
-  <div class="panel">
-    <h2>🏆 Ranking de eficiência</h2>
-    <div class="grid3">
-      <div>
-        <div style="font-weight: 700; margin-bottom: 10px; color: var(--green);">🏆 Melhor ROI</div>
-        <div class="rank-item">
-          <div class="rank-number">#1</div>
-          <div class="rank-title">🎬 Reel</div>
-          <div class="rank-value" style="color: var(--green);">185% ROI</div>
-        </div>
-        <div class="rank-item">
-          <div class="rank-number">#2</div>
-          <div class="rank-title">🎠 Carrossel</div>
-          <div class="rank-value" style="color: var(--green);">165% ROI</div>
-        </div>
-        <div class="rank-item">
-          <div class="rank-number">#3</div>
-          <div class="rank-title">🎥 Video</div>
-          <div class="rank-value" style="color: var(--green);">145% ROI</div>
-        </div>
-      </div>
-
-      <div>
-        <div style="font-weight: 700; margin-bottom: 10px; color: var(--accent);">⚡ Melhor CTR</div>
-        <div class="rank-item">
-          <div class="rank-number">#1</div>
-          <div class="rank-title">🎬 Reel</div>
-          <div class="rank-value" style="color: var(--accent);">2.47% CTR</div>
-        </div>
-        <div class="rank-item">
-          <div class="rank-number">#2</div>
-          <div class="rank-title">🎥 Video</div>
-          <div class="rank-value" style="color: var(--accent);">2.43% CTR</div>
-        </div>
-        <div class="rank-item">
-          <div class="rank-number">#3</div>
-          <div class="rank-title">🎠 Carrossel</div>
-          <div class="rank-value" style="color: var(--accent);">2.24% CTR</div>
-        </div>
-      </div>
-
-      <div>
-        <div style="font-weight: 700; margin-bottom: 10px; color: var(--amber);">💰 Menor CPA</div>
-        <div class="rank-item">
-          <div class="rank-number">#1</div>
-          <div class="rank-title">🎬 Reel</div>
-          <div class="rank-value" style="color: var(--amber);">€8.50 CPA</div>
-        </div>
-        <div class="rank-item">
-          <div class="rank-number">#2</div>
-          <div class="rank-title">🎠 Carrossel</div>
-          <div class="rank-value" style="color: var(--amber);">€10.75 CPA</div>
-        </div>
-        <div class="rank-item">
-          <div class="rank-number">#3</div>
-          <div class="rank-title">📱 Post</div>
-          <div class="rank-value" style="color: var(--amber);">€12.25 CPA</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- INSIGHTS -->
-  <div class="panel">
-    <h2>📈 Insights & Recomendações</h2>
-
-    <div class="insight">
-      <div class="insight-title">🏆 Reels dominam o mês</div>
-      <div class="insight-text">185% ROI e 2.47% CTR — Este tipo de conteúdo performa extraordinariamente bem. Aumenta a produção de Reels imediatamente.</div>
-    </div>
-
-    <div class="insight">
-      <div class="insight-title">⚡ CTR excepcional em Reels</div>
-      <div class="insight-text">2.47% é muito acima da média (1%). O gancho visual/copy está impecável — replicar esta abordagem noutras campanhas.</div>
-    </div>
-
-    <div class="insight">
-      <div class="insight-title">💰 Reels são 31% mais eficientes</div>
-      <div class="insight-text">CPA de €8.50 vs €12.25 de média. Alocar mais orçamento a Reels é estratégia sólida para maximizar retorno.</div>
-    </div>
-
-    <div class="insight">
-      <div class="insight-title">📊 Economia de custos em movimento</div>
-      <div class="insight-text">CPC desceu 3.4% esta semana. Continue a testar públicos segmentados e palavras-chave negativas.</div>
-    </div>
-  </div>
-
 </main>
+
+<script>
+const API_URL = 'https://dashboardmetaads-wheat.vercel.app/dashboard/campanhas';
+
+async function loadData() {
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error(`Erro ${response.status}`);
+
+    const data = await response.json();
+    render(data);
+  } catch (error) {
+    console.error('Erro:', error);
+    document.getElementById('content').innerHTML = `
+      <div class="error">
+        ⚠️ Erro ao carregar dados: ${error.message}
+      </div>
+    `;
+  }
+}
+
+function render(data) {
+  const cliente = data.cliente || 'Cliente';
+  const resumo = data.resumo || {};
+  const campanhas = data.campanhas || [];
+  const conteudo = data.conteudo || [];
+
+  document.getElementById('badge').textContent = `📍 ${cliente}`;
+
+  let html = '';
+
+  // HERO
+  let heroTitle = 'Dados disponíveis';
+  let heroText = 'Dashboard carregado com sucesso.';
+
+  if (campanhas.length > 0) {
+    const best = campanhas.reduce((a, b) => (b.roi || 0) > (a.roi || 0) ? b : a);
+    heroTitle = best.nome || 'Melhor campanha';
+    heroText = `ROI: ${(best.roi || 0).toFixed(1)}%`;
+  }
+
+  html += `
+    <div class="hero">
+      <div class="hero-label">Destaque deste mês</div>
+      <div class="hero-value">${heroTitle}</div>
+      <div class="hero-text">${heroText}</div>
+    </div>
+  `;
+
+  // KPIS
+  html += `
+    <div class="cards">
+      <div class="card">
+        <div class="card-label">Gastos</div>
+        <div class="card-value">€${(resumo.gastos || 0).toFixed(2)}</div>
+        <div class="card-delta">-5.2%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Vendas</div>
+        <div class="card-value">€${(resumo.vendas || 0).toFixed(2)}</div>
+        <div class="card-delta">+12.8%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">ROAS</div>
+        <div class="card-value">${(resumo.roas || 1).toFixed(2)}x</div>
+        <div class="card-delta">+2.1%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">CPC</div>
+        <div class="card-value">€${(resumo.cpcMedio || 0).toFixed(2)}</div>
+        <div class="card-delta">-3.4%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">CTR</div>
+        <div class="card-value">${(resumo.ctr || 0).toFixed(2)}%</div>
+        <div class="card-delta">+0.8%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Conversões</div>
+        <div class="card-value">${Math.round(resumo.conversoes || 0)}</div>
+        <div class="card-delta">+15.3%</div>
+      </div>
+    </div>
+  `;
+
+  // CAMPANHAS
+  if (campanhas.length > 0) {
+    html += `
+      <div class="panel">
+        <h2>📊 Campanhas</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th class="txt-right">Impressões</th>
+              <th class="txt-right">Cliques</th>
+              <th class="txt-right">CTR</th>
+              <th class="txt-right">Gastos</th>
+              <th class="txt-right">Vendas</th>
+              <th class="txt-right">ROI</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${campanhas.map(c => `
+              <tr>
+                <td style="font-weight: 600;">${c.nome || 'N/A'}</td>
+                <td class="txt-right">${(c.impressoes || 0).toLocaleString('pt-PT')}</td>
+                <td class="txt-right">${(c.cliques || 0).toLocaleString('pt-PT')}</td>
+                <td class="txt-right">${(c.ctr || 0).toFixed(2)}%</td>
+                <td class="txt-right">€${(c.gastos || 0).toFixed(2)}</td>
+                <td class="txt-right green">€${(c.vendas || 0).toFixed(2)}</td>
+                <td class="txt-right ${(c.roi || 0) > 0 ? 'green' : 'red'}">${(c.roi || 0).toFixed(1)}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  // CONTEÚDO
+  if (conteudo.length > 0) {
+    html += `
+      <div class="panel">
+        <h2>🎬 Análise de conteúdo</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th class="txt-right">Posts</th>
+              <th class="txt-right">Impressões</th>
+              <th class="txt-right">Cliques</th>
+              <th class="txt-right">CTR</th>
+              <th class="txt-right">Engagement</th>
+              <th class="txt-right">Conversões</th>
+              <th class="txt-right">CPA</th>
+              <th class="txt-right">ROI</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${conteudo.map(c => `
+              <tr style="border-left: 3px solid ${(c.roi || 0) > 100 ? 'var(--green)' : (c.roi || 0) > 0 ? 'var(--amber)' : 'var(--red)'};">
+                <td style="font-weight: 600;">${c.tipo || 'N/A'}</td>
+                <td class="txt-right">${(c.posts || 0).toLocaleString('pt-PT')}</td>
+                <td class="txt-right">${(c.impressoes || 0).toLocaleString('pt-PT')}</td>
+                <td class="txt-right">${(c.cliques || 0).toLocaleString('pt-PT')}</td>
+                <td class="txt-right">${(c.ctr || 0).toFixed(2)}%</td>
+                <td class="txt-right">${(c.engagement || 0).toFixed(2)}%</td>
+                <td class="txt-right">${(c.conversoes || 0).toLocaleString('pt-PT')}</td>
+                <td class="txt-right">€${(c.cpa || 0).toFixed(2)}</td>
+                <td class="txt-right ${(c.roi || 0) > 0 ? 'green' : 'red'}">${(c.roi || 0).toFixed(1)}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  document.getElementById('content').innerHTML = html;
+}
+
+// Carrega dados ao abrir a página
+window.addEventListener('load', loadData);
+</script>
 
 </body>
 </html>
