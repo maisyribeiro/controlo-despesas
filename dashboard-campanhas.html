@@ -3,17 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard de Campanhas - Meta Ads</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<title>Dashboard de Campanhas</title>
 <style>
 :root {
   --bg: #0f1220; --panel: #191d2e; --panel2: #222740; --line: #2c3251;
-  --txt: #e7e9f3; --muted: #9aa0bd; --accent: #5b8cff; --accent2: #7c5bff;
-  --green: #37d399; --red: #ff6b6b; --amber: #ffc857; --radius: 14px;
+  --txt: #e7e9f3; --muted: #9aa0bd; --accent: #5b8cff;
+  --green: #37d399; --red: #ff6b6b; --amber: #ffc857;
 }
 
-* { box-sizing: border-box; }
-body { margin: 0; font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--txt); font-size: 15px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--txt); font-size: 15px; line-height: 1.6; }
 
 header {
   display: flex; align-items: center; gap: 14px; padding: 16px 22px;
@@ -21,67 +20,87 @@ header {
   position: sticky; top: 0; z-index: 50;
 }
 
-header h1 { font-size: 18px; margin: 0; font-weight: 700; }
-header .logo { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #1877f2, #0a66c2); display: grid; place-items: center; font-weight: 800; color: white; font-size: 18px; }
-.client-badge { margin-left: auto; background: var(--panel2); border: 1px solid var(--line); padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--muted); }
+header h1 { font-size: 18px; font-weight: 700; margin: 0; }
+header .logo { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #1877f2, #0a66c2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 18px; }
+.badge { margin-left: auto; background: var(--panel2); border: 1px solid var(--line); padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--muted); }
 
-main { padding: 22px; max-width: 1400px; margin: 0 auto; }
-
-.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
-.toolbar button { background: var(--accent); color: #fff; border: none; padding: 10px 16px; border-radius: 9px; cursor: pointer; font-weight: 700; }
+main { padding: 22px; max-width: 1200px; margin: 0 auto; }
 
 .hero {
   background: linear-gradient(135deg, #1877f2 0%, #0a66c2 100%);
-  border-radius: var(--radius); padding: 28px; margin-bottom: 22px; color: white;
+  border-radius: 14px; padding: 28px; margin-bottom: 22px; color: white;
 }
 
-.hero .label { font-size: 13px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
-.hero .value { font-size: 42px; font-weight: 800; margin: 8px 0; line-height: 1; }
-.hero .subtitle { font-size: 14px; opacity: 0.95; margin-top: 12px; line-height: 1.5; }
+.hero-label { font-size: 13px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
+.hero-value { font-size: 42px; font-weight: 800; margin: 8px 0; }
+.hero-text { font-size: 14px; opacity: 0.95; margin-top: 12px; }
 
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 22px; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
-.card .label { color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; }
-.card .value { font-size: 28px; font-weight: 800; margin-top: 8px; }
-.card .delta { font-size: 12px; margin-top: 8px; font-weight: 600; color: var(--green); }
+.cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 22px;
+}
 
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin-bottom: 22px; }
-.panel h3 { margin: 0 0 14px 0; font-size: 15px; font-weight: 700; }
-.panel h3 .meta { font-size: 12px; font-weight: 400; color: var(--muted); }
+.card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+}
+
+.card-label { color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; }
+.card-value { font-size: 28px; font-weight: 800; margin: 8px 0; }
+.card-delta { font-size: 12px; font-weight: 600; color: var(--green); }
+
+.panel {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 22px;
+}
+
+.panel h2 { font-size: 16px; font-weight: 700; margin: 0 0 14px 0; }
+
+table {
+  width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 14px;
+}
+
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 600; }
+tbody tr:hover { background: var(--panel2); }
+
+.txt-right { text-align: right; }
+.green { color: var(--green); font-weight: 600; }
+.amber { color: var(--amber); font-weight: 600; }
+
+.insight {
+  background: var(--panel2); border-left: 3px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+}
+
+.insight-title { font-weight: 600; margin-bottom: 4px; }
+.insight-text { font-size: 13px; color: var(--muted); }
 
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 
-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 14px; }
-th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
-th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
-tbody tr:hover { background: var(--panel2); }
-.txt-right { text-align: right; }
+.rank-item {
+  background: var(--panel2); border-radius: 8px; padding: 10px; margin-bottom: 8px;
+}
 
-canvas { max-height: 250px !important; }
+.rank-number { font-size: 12px; color: var(--muted); }
+.rank-title { font-weight: 600; margin: 4px 0; }
+.rank-value { font-size: 14px; font-weight: 700; }
 
-.loading { text-align: center; padding: 40px; color: var(--muted); }
-.spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 1024px) {
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+}
 
-.insight { padding: 12px 14px; background: var(--panel2); border-radius: 8px; border-left: 3px solid var(--accent); margin-bottom: 10px; }
-.insight-title { font-weight: 600; margin-bottom: 4px; }
-.insight-text { font-size: 13px; color: var(--muted); }
-
-@media (max-width: 1024px) { .grid2 { grid-template-columns: 1fr; } .grid3 { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 620px) {
   header { flex-wrap: wrap; padding: 12px 14px; }
   header h1 { flex: 1; font-size: 16px; }
-  .client-badge { width: 100%; }
+  .badge { width: 100%; order: 3; }
   main { padding: 14px; }
   .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .card { padding: 14px; }
-  .card .value { font-size: 22px; }
+  .card-value { font-size: 22px; }
   .hero { padding: 20px; }
-  .hero .value { font-size: 32px; }
-  .grid2, .grid3 { grid-template-columns: 1fr; }
+  .hero-value { font-size: 32px; }
+  .panel h2 { font-size: 14px; }
   table { font-size: 13px; }
   th, td { padding: 8px 9px; }
+  .grid2, .grid3 { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -90,70 +109,54 @@ canvas { max-height: 250px !important; }
 <header>
   <div class="logo">f</div>
   <h1>Dashboard de Campanhas</h1>
-  <div class="client-badge">📍 Meta Ads</div>
+  <div class="badge">📍 Meta Ads</div>
 </header>
 
 <main>
-  <div class="toolbar">
-    <button onclick="location.reload()">🔄 Atualizar</button>
-  </div>
-
-  <!-- DESTAQUE -->
+  <!-- HERO -->
   <div class="hero">
-    <div class="label">Destaque deste mês</div>
-    <div class="value" id="heroValue">🎬 Reels Dominam</div>
-    <div class="subtitle" id="heroSubtitle">Os vídeos curtos estão gerando o melhor ROI (185%). Continua produzindo Reels.</div>
+    <div class="hero-label">Destaque deste mês</div>
+    <div class="hero-value">🎬 Reels Dominam</div>
+    <div class="hero-text">Os vídeos curtos estão gerando o melhor ROI (185%). Continua produzindo Reels — é ouro puro.</div>
   </div>
 
   <!-- KPIS -->
   <div class="cards">
     <div class="card">
-      <div class="label">Gastos totais</div>
-      <div class="value">€2,450</div>
-      <div class="delta">-5.2%</div>
+      <div class="card-label">Gastos totais</div>
+      <div class="card-value">€2,450</div>
+      <div class="card-delta">-5.2%</div>
     </div>
     <div class="card">
-      <div class="label">Vendas</div>
-      <div class="value">€31,245</div>
-      <div class="delta">+12.8%</div>
+      <div class="card-label">Vendas</div>
+      <div class="card-value">€31,245</div>
+      <div class="card-delta">+12.8%</div>
     </div>
     <div class="card">
-      <div class="label">ROAS</div>
-      <div class="value">12.75x</div>
-      <div class="delta">+2.1%</div>
+      <div class="card-label">ROAS</div>
+      <div class="card-value">12.75x</div>
+      <div class="card-delta">+2.1%</div>
     </div>
     <div class="card">
-      <div class="label">CPC médio</div>
-      <div class="value">€0.38</div>
-      <div class="delta">-3.4%</div>
+      <div class="card-label">CPC</div>
+      <div class="card-value">€0.38</div>
+      <div class="card-delta">-3.4%</div>
     </div>
     <div class="card">
-      <div class="label">CTR</div>
-      <div class="value">2.15%</div>
-      <div class="delta">+0.8%</div>
+      <div class="card-label">CTR</div>
+      <div class="card-value">2.15%</div>
+      <div class="card-delta">+0.8%</div>
     </div>
     <div class="card">
-      <div class="label">Conversões</div>
-      <div class="value">145</div>
-      <div class="delta">+15.3%</div>
+      <div class="card-label">Conversões</div>
+      <div class="card-value">145</div>
+      <div class="card-delta">+15.3%</div>
     </div>
   </div>
 
-  <!-- GRÁFICOS -->
-  <div class="grid2">
-    <div class="panel">
-      <h3>Performance das campanhas <span class="meta">(últimos 30 dias)</span></h3>
-      <canvas id="chartCampaigns"></canvas>
-    </div>
-    <div class="panel">
-      <h3>Performance por tipo de conteúdo</h3>
-      <canvas id="chartContent"></canvas>
-    </div>
-  </div>
-
-  <!-- TABELA CAMPANHAS -->
+  <!-- CAMPANHAS -->
   <div class="panel">
-    <h3>Detalhes das campanhas</h3>
+    <h2>📊 Detalhes das campanhas</h2>
     <table>
       <thead>
         <tr>
@@ -171,32 +174,32 @@ canvas { max-height: 250px !important; }
           <td class="txt-right">45,000</td>
           <td class="txt-right">2.18%</td>
           <td class="txt-right">€450.50</td>
-          <td class="txt-right" style="color: var(--green); font-weight: 600;">€8,900</td>
-          <td class="txt-right" style="color: var(--green); font-weight: 600;">1875%</td>
+          <td class="txt-right green">€8,900</td>
+          <td class="txt-right green">1875%</td>
         </tr>
         <tr>
           <td style="font-weight: 600;">Campanha B - Produto Y</td>
           <td class="txt-right">38,000</td>
           <td class="txt-right">1.97%</td>
           <td class="txt-right">€380.75</td>
-          <td class="txt-right" style="color: var(--green); font-weight: 600;">€7,200</td>
-          <td class="txt-right" style="color: var(--green); font-weight: 600;">1790%</td>
+          <td class="txt-right green">€7,200</td>
+          <td class="txt-right green">1790%</td>
         </tr>
         <tr>
           <td style="font-weight: 600;">Campanha C - Black Friday</td>
           <td class="txt-right">52,000</td>
           <td class="txt-right">2.40%</td>
           <td class="txt-right">€620.25</td>
-          <td class="txt-right" style="color: var(--green); font-weight: 600;">€15,145</td>
-          <td class="txt-right" style="color: var(--green); font-weight: 600;">2340%</td>
+          <td class="txt-right green">€15,145</td>
+          <td class="txt-right green">2340%</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- TABELA CONTEÚDO -->
+  <!-- CONTEÚDO -->
   <div class="panel">
-    <h3>🎬 Análise de conteúdo</h3>
+    <h2>🎬 Análise de conteúdo</h2>
     <table>
       <thead>
         <tr>
@@ -219,7 +222,7 @@ canvas { max-height: 250px !important; }
           <td class="txt-right">4.2%</td>
           <td class="txt-right">65</td>
           <td class="txt-right">€8.50</td>
-          <td class="txt-right" style="color: var(--green); font-weight: 600;">185%</td>
+          <td class="txt-right green">185%</td>
         </tr>
         <tr style="border-left: 3px solid var(--amber);">
           <td style="font-weight: 600;">📱 Post</td>
@@ -229,7 +232,7 @@ canvas { max-height: 250px !important; }
           <td class="txt-right">2.5%</td>
           <td class="txt-right">35</td>
           <td class="txt-right">€12.25</td>
-          <td class="txt-right" style="color: var(--amber); font-weight: 600;">125%</td>
+          <td class="txt-right amber">125%</td>
         </tr>
         <tr style="border-left: 3px solid var(--amber);">
           <td style="font-weight: 600;">📖 Story</td>
@@ -239,7 +242,7 @@ canvas { max-height: 250px !important; }
           <td class="txt-right">3.1%</td>
           <td class="txt-right">25</td>
           <td class="txt-right">€15.50</td>
-          <td class="txt-right" style="color: var(--amber); font-weight: 600;">95%</td>
+          <td class="txt-right amber">95%</td>
         </tr>
         <tr style="border-left: 3px solid var(--amber);">
           <td style="font-weight: 600;">🎥 Video</td>
@@ -249,7 +252,7 @@ canvas { max-height: 250px !important; }
           <td class="txt-right">3.8%</td>
           <td class="txt-right">20</td>
           <td class="txt-right">€18.75</td>
-          <td class="txt-right" style="color: var(--amber); font-weight: 600;">145%</td>
+          <td class="txt-right amber">145%</td>
         </tr>
         <tr style="border-left: 3px solid var(--green);">
           <td style="font-weight: 600;">🎠 Carrossel</td>
@@ -259,7 +262,7 @@ canvas { max-height: 250px !important; }
           <td class="txt-right">2.9%</td>
           <td class="txt-right">45</td>
           <td class="txt-right">€10.75</td>
-          <td class="txt-right" style="color: var(--green); font-weight: 600;">165%</td>
+          <td class="txt-right green">165%</td>
         </tr>
       </tbody>
     </table>
@@ -267,62 +270,62 @@ canvas { max-height: 250px !important; }
 
   <!-- RANKING -->
   <div class="panel">
-    <h3>🏆 Ranking de eficiência</h3>
+    <h2>🏆 Ranking de eficiência</h2>
     <div class="grid3">
       <div>
         <div style="font-weight: 700; margin-bottom: 10px; color: var(--green);">🏆 Melhor ROI</div>
-        <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
-          <div style="font-size: 12px; color: var(--muted);">#1</div>
-          <div style="font-weight: 600;">🎬 Reel</div>
-          <div style="font-size: 14px; color: var(--green); font-weight: 700;">185% ROI</div>
+        <div class="rank-item">
+          <div class="rank-number">#1</div>
+          <div class="rank-title">🎬 Reel</div>
+          <div class="rank-value" style="color: var(--green);">185% ROI</div>
         </div>
-        <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
-          <div style="font-size: 12px; color: var(--muted);">#2</div>
-          <div style="font-weight: 600;">🎠 Carrossel</div>
-          <div style="font-size: 14px; color: var(--green); font-weight: 700;">165% ROI</div>
+        <div class="rank-item">
+          <div class="rank-number">#2</div>
+          <div class="rank-title">🎠 Carrossel</div>
+          <div class="rank-value" style="color: var(--green);">165% ROI</div>
         </div>
-        <div style="padding: 10px; background: var(--panel2); border-radius: 8px;">
-          <div style="font-size: 12px; color: var(--muted);">#3</div>
-          <div style="font-weight: 600;">🎥 Video</div>
-          <div style="font-size: 14px; color: var(--green); font-weight: 700;">145% ROI</div>
+        <div class="rank-item">
+          <div class="rank-number">#3</div>
+          <div class="rank-title">🎥 Video</div>
+          <div class="rank-value" style="color: var(--green);">145% ROI</div>
         </div>
       </div>
 
       <div>
         <div style="font-weight: 700; margin-bottom: 10px; color: var(--accent);">⚡ Melhor CTR</div>
-        <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
-          <div style="font-size: 12px; color: var(--muted);">#1</div>
-          <div style="font-weight: 600;">🎬 Reel</div>
-          <div style="font-size: 14px; color: var(--accent); font-weight: 700;">2.47% CTR</div>
+        <div class="rank-item">
+          <div class="rank-number">#1</div>
+          <div class="rank-title">🎬 Reel</div>
+          <div class="rank-value" style="color: var(--accent);">2.47% CTR</div>
         </div>
-        <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
-          <div style="font-size: 12px; color: var(--muted);">#2</div>
-          <div style="font-weight: 600;">🎥 Video</div>
-          <div style="font-size: 14px; color: var(--accent); font-weight: 700;">2.43% CTR</div>
+        <div class="rank-item">
+          <div class="rank-number">#2</div>
+          <div class="rank-title">🎥 Video</div>
+          <div class="rank-value" style="color: var(--accent);">2.43% CTR</div>
         </div>
-        <div style="padding: 10px; background: var(--panel2); border-radius: 8px;">
-          <div style="font-size: 12px; color: var(--muted);">#3</div>
-          <div style="font-weight: 600;">🎠 Carrossel</div>
-          <div style="font-size: 14px; color: var(--accent); font-weight: 700;">2.24% CTR</div>
+        <div class="rank-item">
+          <div class="rank-number">#3</div>
+          <div class="rank-title">🎠 Carrossel</div>
+          <div class="rank-value" style="color: var(--accent);">2.24% CTR</div>
         </div>
       </div>
 
       <div>
         <div style="font-weight: 700; margin-bottom: 10px; color: var(--amber);">💰 Menor CPA</div>
-        <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
-          <div style="font-size: 12px; color: var(--muted);">#1</div>
-          <div style="font-weight: 600;">🎬 Reel</div>
-          <div style="font-size: 14px; color: var(--amber); font-weight: 700;">€8.50 CPA</div>
+        <div class="rank-item">
+          <div class="rank-number">#1</div>
+          <div class="rank-title">🎬 Reel</div>
+          <div class="rank-value" style="color: var(--amber);">€8.50 CPA</div>
         </div>
-        <div style="padding: 10px; background: var(--panel2); border-radius: 8px; margin-bottom: 8px;">
-          <div style="font-size: 12px; color: var(--muted);">#2</div>
-          <div style="font-weight: 600;">🎠 Carrossel</div>
-          <div style="font-size: 14px; color: var(--amber); font-weight: 700;">€10.75 CPA</div>
+        <div class="rank-item">
+          <div class="rank-number">#2</div>
+          <div class="rank-title">🎠 Carrossel</div>
+          <div class="rank-value" style="color: var(--amber);">€10.75 CPA</div>
         </div>
-        <div style="padding: 10px; background: var(--panel2); border-radius: 8px;">
-          <div style="font-size: 12px; color: var(--muted);">#3</div>
-          <div style="font-weight: 600;">📱 Post</div>
-          <div style="font-size: 14px; color: var(--amber); font-weight: 700;">€12.25 CPA</div>
+        <div class="rank-item">
+          <div class="rank-number">#3</div>
+          <div class="rank-title">📱 Post</div>
+          <div class="rank-value" style="color: var(--amber);">€12.25 CPA</div>
         </div>
       </div>
     </div>
@@ -330,103 +333,30 @@ canvas { max-height: 250px !important; }
 
   <!-- INSIGHTS -->
   <div class="panel">
-    <h3>📈 Insights & Recomendações</h3>
+    <h2>📈 Insights & Recomendações</h2>
+
     <div class="insight">
       <div class="insight-title">🏆 Reels dominam o mês</div>
-      <div class="insight-text">185% ROI e 2.47% CTR — O tipo de conteúdo performa extraordinariamente bem. Aumenta a produção de Reels.</div>
+      <div class="insight-text">185% ROI e 2.47% CTR — Este tipo de conteúdo performa extraordinariamente bem. Aumenta a produção de Reels imediatamente.</div>
     </div>
+
     <div class="insight">
-      <div class="insight-title">⚡ CTR excepcional</div>
-      <div class="insight-text">2.47% é muito acima da média (1%). O gancho visual dos Reels está impecável — replicar noutras campanhas.</div>
+      <div class="insight-title">⚡ CTR excepcional em Reels</div>
+      <div class="insight-text">2.47% é muito acima da média (1%). O gancho visual/copy está impecável — replicar esta abordagem noutras campanhas.</div>
     </div>
+
     <div class="insight">
       <div class="insight-title">💰 Reels são 31% mais eficientes</div>
-      <div class="insight-text">CPA de €8.50 vs €12.25 média. Alocar mais orçamento a Reels é estratégia sólida.</div>
+      <div class="insight-text">CPA de €8.50 vs €12.25 de média. Alocar mais orçamento a Reels é estratégia sólida para maximizar retorno.</div>
     </div>
+
     <div class="insight">
-      <div class="insight-title">📊 Economia de custos</div>
+      <div class="insight-title">📊 Economia de custos em movimento</div>
       <div class="insight-text">CPC desceu 3.4% esta semana. Continue a testar públicos segmentados e palavras-chave negativas.</div>
     </div>
   </div>
+
 </main>
-
-<script>
-// Gráfico 1: Campanhas
-setTimeout(() => {
-  try {
-    const ctx1 = document.getElementById('chartCampaigns').getContext('2d');
-    new Chart(ctx1, {
-      type: 'bar',
-      data: {
-        labels: ['Campanha A', 'Campanha B', 'Campanha C'],
-        datasets: [
-          {
-            label: 'Gastos (€)',
-            data: [450.50, 380.75, 620.25],
-            backgroundColor: 'rgba(91, 140, 255, 0.3)',
-            borderColor: '#5b8cff',
-            borderWidth: 1
-          },
-          {
-            label: 'Vendas (€)',
-            data: [8900, 7200, 15145],
-            backgroundColor: 'rgba(55, 211, 153, 0.3)',
-            borderColor: '#37d399',
-            borderWidth: 1
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: { legend: { labels: { color: '#9aa0bd' } } },
-        scales: {
-          y: { ticks: { color: '#9aa0bd' }, grid: { color: '#2c3251' } },
-          x: { ticks: { color: '#9aa0bd' }, grid: { display: false } }
-        }
-      }
-    });
-  } catch(e) { console.log('Chart 1 error:', e); }
-}, 100);
-
-// Gráfico 2: Conteúdo
-setTimeout(() => {
-  try {
-    const ctx2 = document.getElementById('chartContent').getContext('2d');
-    new Chart(ctx2, {
-      type: 'bar',
-      data: {
-        labels: ['Reel', 'Post', 'Story', 'Video', 'Carrossel'],
-        datasets: [
-          {
-            label: 'CTR (%)',
-            data: [2.47, 1.81, 1.57, 2.43, 2.24],
-            backgroundColor: 'rgba(91, 140, 255, 0.5)',
-            borderColor: '#5b8cff',
-            borderWidth: 1
-          },
-          {
-            label: 'Engagement (%)',
-            data: [4.2, 2.5, 3.1, 3.8, 2.9],
-            backgroundColor: 'rgba(124, 91, 255, 0.5)',
-            borderColor: '#7c5bff',
-            borderWidth: 1
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: { legend: { labels: { color: '#9aa0bd' } } },
-        scales: {
-          y: { ticks: { color: '#9aa0bd' }, grid: { color: '#2c3251' } },
-          x: { ticks: { color: '#9aa0bd' }, grid: { display: false } }
-        }
-      }
-    });
-  } catch(e) { console.log('Chart 2 error:', e); }
-}, 200);
-</script>
 
 </body>
 </html>
