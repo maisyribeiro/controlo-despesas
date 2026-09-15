@@ -459,8 +459,6 @@ let state = {
 // ===== FETCH & UPDATE =====
 async function fetchData() {
   try {
-    document.querySelector('.toolbar').innerHTML += '<div class="loading"><div class="spinner"></div></div>';
-
     const response = await fetch(API_URL, {
       headers: { 'Accept': 'application/json' }
     });
@@ -469,12 +467,13 @@ async function fetchData() {
 
     state.data = await response.json();
     state.lastUpdate = new Date();
-
-    document.querySelector('.toolbar .loading')?.remove();
     render();
   } catch (error) {
-    console.error('Erro ao carregar dados:', error);
-    showError(`Erro ao carregar dados: ${error.message}`);
+    console.error('Erro ao carregar dados da API:', error);
+    console.log('Usando dados de exemplo...');
+    state.data = getMockData();
+    state.lastUpdate = new Date();
+    render();
   }
 }
 
@@ -1003,14 +1002,8 @@ function getMockData() {
 
 // ===== INIT =====
 window.addEventListener('load', () => {
-  // Tentar carregar da API, e em caso de erro usar dados de exemplo
-  fetchData().catch(() => {
-    state.data = getMockData();
-    render();
-  });
-  setInterval(() => {
-    fetchData().catch(() => console.log('Falha ao atualizar dados'));
-  }, REFRESH_INTERVAL);
+  fetchData();
+  setInterval(fetchData, REFRESH_INTERVAL);
 });
 </script>
 
