@@ -1,0 +1,6 @@
+{
+  "buildCommand": "echo 'Static HTML files'",
+  "outputDirectory": ".",
+  "public": true,
+  "env": []
+}
