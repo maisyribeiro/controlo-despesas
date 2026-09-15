@@ -1,0 +1,5 @@
+run = "node backend.js"
+entrypoint = "backend.js"
+
+[env]
+PORT = "3000"
