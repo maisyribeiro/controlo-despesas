@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   try {
-    const response = await fetch('https://dashboardmetaads-wheat.vercel.app/dashboard/campanhas', {
+    const response = await fetch('https://novodashcristina.vercel.app/dashboard/campanhas', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
